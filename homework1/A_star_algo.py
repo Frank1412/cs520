@@ -55,7 +55,7 @@ class AStar(object):
         self.distanceType = distanceType
         self.cost = 0
         self.directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
-        self.visited = []
+        self.visited = set()
         self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
         self.cost = {}
         self.path = {}
@@ -83,7 +83,7 @@ class AStar(object):
     def run(self):
 
         start = self.map.getStartPoint()
-        self.visited.append(start)
+        self.visited.add(start)
         self.cost[start] = 0
         self.fringe.put((0, start))
 
@@ -105,7 +105,7 @@ class AStar(object):
                     continue
                 else:
                     self.cost[(i, j)] = self.cost.get(cur) + 1
-                    self.visited.append((i, j))
+                    self.visited.add((i, j))
                     priority = self.calculate_distance((i, j))
                     self.fringe.put((priority, (i, j)))
                     self.path[(i, j)] = cur
