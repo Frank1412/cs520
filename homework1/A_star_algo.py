@@ -31,8 +31,11 @@ class Map(object):
     def getEndPoint(self):
         return self.end
 
+    def reset(self):
+        self.map = np.zeros([self.m, self.n])
+
     def setObstacles(self, isRandom=True, rate=0.2, obstacles=None):
-        rate = min(0.2, rate)
+        # rate = min(0.2, rate)
         if isRandom:
             for x in range(self.m):
                 for y in range(self.n):
@@ -56,6 +59,7 @@ class AStar(object):
         self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
         self.cost = {}
         self.path = {}
+        # self.blocks = set()
 
     def distance(self, a, b):
         """
@@ -92,12 +96,15 @@ class AStar(object):
                 i, j = cur[0] + x, cur[1] + y
                 if i < 0 or i >= self.map.m or j < 0 or j >= self.map.n:
                     continue
+                # if (i, j) in self.blocks:
+                #     continue
                 if self.map.map[i][j] == 1:
+                    # self.blocks.add((i, j))
                     continue
                 if (i, j) in self.visited:
                     continue
                 else:
-                    self.cost[(i, j)] = self.cost.get(cur)+1
+                    self.cost[(i, j)] = self.cost.get(cur) + 1
                     self.visited.append((i, j))
                     priority = self.calculate_distance((i, j))
                     self.fringe.put((priority, (i, j)))
@@ -106,24 +113,32 @@ class AStar(object):
         return False
 
 
-if __name__ == "__main__":
-
-    map = Map(19, 19)
+def findShortestPath():
+    map = Map(101, 101)
     map.setStartPoint(4, 4)
     obstacles = [(0, 8), (1, 8), (2, 8), (3, 8), (4, 8), (5, 8), (6, 8), (7, 8),
-    (8,7), (8, 6), (8, 5), (8, 4), (8, 3), (8, 2), (8, 1)]
-    map.setObstacles(False, 0.1, obstacles)
-    # map.setObstacles()
-    print(map.map)
+                 (8, 7), (8, 6), (8, 5), (8, 4), (8, 3), (8, 2), (8, 1)]
+    # map.setObstacles(False, 0.1, obstacles)
+    map.setObstacles(True, 0.2)
+    # print(map.map)
     algo = AStar(map, 1)
-    print(algo.run())
+    sum = 0
+    for i in range(100):
+        map = Map(101, 101)
+        map.setObstacles(True, 0.1)
+        algo = AStar(map, 1)
+        result = algo.run()
+        print(result)
+        if result:
+            sum += 1
+    print(sum / 100)
     path = algo.path
     last = map.end
     while last in path:
-        print(last, path[last])
+        # print(last, path[last])
         last = path[last]
 
-    img = Image.fromarray(np.uint8(cm.gist_earth(map.map)*255))
+    img = Image.fromarray(np.uint8(cm.gist_earth(map.map) * 255))
 
     # mymap = np.array(img)  # 图像转化为二维数组
     # 绘制路径
@@ -131,16 +146,22 @@ if __name__ == "__main__":
     print(img.shape)
     last = map.end
     while last in path:
-        img[last[0]][last[1]] = [0,255,255]
+        img[last[0]][last[1]] = [0, 255, 255]
         last = path[last]
     start = map.getStartPoint()
     end = map.getEndPoint()
-    img[start[0]][start[1]] = [255,0,0]
+    img[start[0]][start[1]] = [255, 0, 0]
     img[end[0]][end[1]] = [255, 0, 0]
     ax = plt.gca()
-    ax.set_xticks(range(19))
-    ax.set_yticks(range(19))
+    # ax.set_xticks(range(101))
+    # ax.set_yticks(range(101))
     plt.imshow(img)
     plt.grid(linewidth=1)
     # plt.axis('off')
     plt.show()
+
+
+if __name__ == "__main__":
+    findShortestPath()
+
+
