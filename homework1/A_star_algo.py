@@ -59,6 +59,7 @@ class AStar(object):
         self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
         self.cost = {}
         self.path = {}
+        self.trajectory = set()
         # self.blocks = set()
 
     def distance(self, a, b):
@@ -89,6 +90,7 @@ class AStar(object):
 
         while not self.fringe.empty():
             _, cur = self.fringe.get()
+            self.trajectory.add(cur)
 
             if cur == self.map.end:
                 return True

@@ -27,7 +27,11 @@ def question4():
 
 
 def question6():
-    p_list = np.linspace(0, 0.33, 5)  # 34
+    p_list = np.linspace(0, 0.33, 34)  # 34
+    # plt.plot(p_list, [1]*34)
+    # plt.xlabel('density')
+    # plt.ylabel('Length of Shortest Path in Final Discovered Gridworld / Length of Shortest Path in Full Gridworld')
+    # plt.show()
     trajectory_len = []  # average trajectory length list
     avg_trajectory_div_shortestPath = []   # average (trajectory length / length of shortest path) list
     avg_cell_processed = []    # Average Number of Cells Processed list
@@ -35,23 +39,26 @@ def question6():
 
     for p in p_list:
         num = 0
-        path_len = 0    # average trajectory length
+        avg_trajectory = 0    # average trajectory length
         avg_trj_div_stp = 0    # average (trajectory length / length of shortest path)
         cell_num = 0
-        while num < 1:
+        while num < 50:
             map.setObstacles(True, p)
             algo = AStar(map, 1)
             result = algo.run()
             print(result)
             if result:
                 num += 1
-                path_len += len(algo.path)
+                trajectory = len(algo.trajectory)
+                avg_trajectory += trajectory
                 shortestPath = algo.cost.get(map.end)
-                avg_trj_div_stp += path_len/shortestPath
-
+                avg_trj_div_stp += trajectory/shortestPath
+                cell_num += len(algo.visited)
+                print(len(algo.visited))
             map.reset()
-        trajectory_len.append(path_len / num)
+        trajectory_len.append(avg_trajectory / num)
         avg_trajectory_div_shortestPath.append(avg_trj_div_stp/num)
+        avg_cell_processed.append(cell_num/num)
 
     plt.plot(p_list, trajectory_len)
     plt.xlabel('density')
@@ -61,7 +68,14 @@ def question6():
     plt.xlabel('density')
     plt.ylabel('Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld')
     plt.show()
+    plt.plot(p_list, avg_cell_processed)
+    plt.xlabel('density')
+    plt.ylabel('Average Number of Cells Processed by Repeated A*')
+    plt.show()
     print(p_list)
+    print(trajectory_len)
+    print(avg_trajectory_div_shortestPath)
+    print(avg_cell_processed)
 
 
 if __name__ == "__main__":
