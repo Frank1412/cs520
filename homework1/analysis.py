@@ -54,7 +54,7 @@ def question6():
                 shortestPath = algo.cost.get(map.end)
                 avg_trj_div_stp += trajectory/shortestPath
                 cell_num += len(algo.visited)
-                print(len(algo.visited))
+                # print(len(algo.visited))
             map.reset()
         trajectory_len.append(avg_trajectory / num)
         avg_trajectory_div_shortestPath.append(avg_trj_div_stp/num)

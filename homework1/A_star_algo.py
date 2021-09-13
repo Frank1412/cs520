@@ -66,7 +66,8 @@ class AStar(object):
         """
         distanceType_dict = {
             1: 'Manhattan',
-            2: 'Euclidean'
+            2: 'Euclidean',
+            3: 'Chebyshev'
         }
         :param a: point a
         :param b: point b
@@ -77,6 +78,8 @@ class AStar(object):
             return abs(b[0] - a[0]) + abs(b[1] - a[1])
         elif self.distanceType == 2:
             return math.sqrt((b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1]))
+        elif self.distanceType == 3:
+            return max(abs(b[0] - a[0]), abs(b[1]-a[1]))
 
     def calculate_distance(self, point):
         return self.cost.get(point) + self.distance(point, self.map.end)
