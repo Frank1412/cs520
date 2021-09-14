@@ -1,6 +1,7 @@
 # encoding=utf-8
 
 from A_star_algo import *
+import time
 
 
 def question4():
@@ -24,6 +25,39 @@ def question4():
     while last in path:
         # print(last, path[last])
         last = path[last]
+
+def question5():
+    for _ in range(3):
+        map =  Map(101, 101)
+        map.setObstacles(True, 0.2)
+        for i in range(3):
+            algo = AStar(map,i+1)
+            startTime = time.time()
+            result = algo.run()
+            endTime = time.time()
+            if(result==False):continue
+            img = Image.fromarray(np.uint8(cm.gist_earth(map.map) * 255))
+            path = algo.path
+            img = np.array(img.convert('RGB'))
+            print(img.shape)
+            last = map.end
+            while last in path:
+                img[last[0]][last[1]] = [0, 255, 255]
+                last = path[last]
+            start = map.getStartPoint()
+            end = map.getEndPoint()
+            img[start[0]][start[1]] = [255, 0, 0]
+            img[end[0]][end[1]] = [255, 0, 0]
+            plt.imshow(img)
+            plt.grid(linewidth=1)
+            method = {
+                0: "Manhattan",
+                1: "Euclidean",
+                2: "Chebyshev"
+            }
+            plt.title(method.get(i)+":"+str(endTime - startTime))
+            plt.show()        
+
 
 
 def question6():
@@ -80,4 +114,5 @@ def question6():
 
 if __name__ == "__main__":
     # question4()
-    question6()
+    question5()
+    #question6()
