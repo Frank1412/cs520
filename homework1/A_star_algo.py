@@ -9,6 +9,28 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 
+def distance(a, b, distanceType):
+    """
+
+    :param distanceType:
+        distanceType_dict = {
+            1: 'Manhattan',
+            2: 'Euclidean',
+            3: 'Chebyshev'
+        }
+    :param a: point a
+    :param b: point b
+    :return: distance between a and b
+    """
+
+    if distanceType == 1:
+        return abs(b[0] - a[0]) + abs(b[1] - a[1])
+    elif distanceType == 2:
+        return math.sqrt((b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1]))
+    elif distanceType == 3:
+        return max(abs(b[0] - a[0]), abs(b[1] - a[1]))
+
+
 class Map(object):
 
     def __init__(self, m=19, n=19):
@@ -59,30 +81,11 @@ class AStar(object):
         self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
         self.cost = {}
         self.path = {}
-        self.trajectory = set()
+        self.trajectory = []
         # self.blocks = set()
 
-    def distance(self, a, b):
-        """
-        distanceType_dict = {
-            1: 'Manhattan',
-            2: 'Euclidean',
-            3: 'Chebyshev'
-        }
-        :param a: point a
-        :param b: point b
-        :return: distance between a and b
-        """
-
-        if self.distanceType == 1:
-            return abs(b[0] - a[0]) + abs(b[1] - a[1])
-        elif self.distanceType == 2:
-            return math.sqrt((b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1]))
-        elif self.distanceType == 3:
-            return max(abs(b[0] - a[0]), abs(b[1]-a[1]))
-
     def calculate_distance(self, point):
-        return self.cost.get(point) + self.distance(point, self.map.end)
+        return self.cost.get(point) + distance(point, self.map.end)
 
     def run(self):
 
@@ -93,7 +96,7 @@ class AStar(object):
 
         while not self.fringe.empty():
             _, cur = self.fringe.get()
-            self.trajectory.add(cur)
+            self.trajectory.append(cur)
 
             if cur == self.map.end:
                 return True
@@ -116,6 +119,60 @@ class AStar(object):
                     self.path[(i, j)] = cur
 
         return False
+
+
+class RepeatedAStar(object):
+
+    def __init__(self, map, distanceType):
+        self.map = map
+        self.start = map.getStartPoint()
+        self.goal = map.getEndPoint()
+        self.distanceType = distanceType
+        self.cost = 0
+        self.directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+        self.visited = set()
+        self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
+        self.cost = {}
+        self.path = {}
+        self.trajectory = []
+
+    def calculate_distance(self, point, distanceType):
+        return self.cost.get(point) + distance(point, self.map.end, distanceType)
+
+    def run(self):
+
+        self.dfs(self.start)
+        result = self.map.map[self.start[0]][self.start[1]] == 1
+        return result
+
+    def dfs(self, start):
+
+        if start == self.goal:
+            return True
+
+        tmp_priority = PriorityQueue(4)
+        for (x, y) in self.directions:
+            i, j = start[0] + x, start[1] + y
+            if i < 0 or i >= self.map.m or j < 0 or j >= self.map.n:
+                continue
+            if self.map.map[i][j] == 1:
+                # self.blocks.add((i, j))
+                continue
+            if (i, j) in self.visited:
+                continue
+            print(i, j)
+            self.cost[(i, j)] = self.cost[start] + 1
+            fn = self.calculate_distance((i, j), self.distanceType)
+            tmp_priority.put((fn, (i, j)))
+            self.path[(i, j)] = start
+
+        if tmp_priority.empty():
+            self.map.map[start[0]][start[1]] = 1
+            return
+
+        while not tmp_priority.empty():
+            _, (x, y) = tmp_priority.get()
+            self.dfs((x, y))
 
 
 def findShortestPath():
@@ -168,5 +225,3 @@ def findShortestPath():
 
 if __name__ == "__main__":
     findShortestPath()
-
-
