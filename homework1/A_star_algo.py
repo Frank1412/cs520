@@ -141,6 +141,8 @@ class RepeatedAStar(object):
 
     def run(self):
 
+        self.cost[self.start] = 0
+        self.visited.add(self.start)
         self.dfs(self.start)
         result = self.map.map[self.start[0]][self.start[1]] == 1
         return result
@@ -148,22 +150,23 @@ class RepeatedAStar(object):
     def dfs(self, start):
 
         if start == self.goal:
-            return True
+            return
 
         tmp_priority = PriorityQueue(4)
         for (x, y) in self.directions:
             i, j = start[0] + x, start[1] + y
             if i < 0 or i >= self.map.m or j < 0 or j >= self.map.n:
                 continue
+            if (i, j) in self.visited:
+                continue
             if self.map.map[i][j] == 1:
                 # self.blocks.add((i, j))
                 continue
-            if (i, j) in self.visited:
-                continue
-            print(i, j)
-            self.cost[(i, j)] = self.cost[start] + 1
+
+            self.cost[(i, j)] = self.cost.get(start) + 1
             fn = self.calculate_distance((i, j), self.distanceType)
             tmp_priority.put((fn, (i, j)))
+            self.visited.add((i, j))
             self.path[(i, j)] = start
 
         if tmp_priority.empty():
