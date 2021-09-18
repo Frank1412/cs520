@@ -131,7 +131,7 @@ class RepeatedAStar(object):
         self.cost = 0
         self.directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
         self.visited = set()
-        self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
+        # self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
         self.cost = {}
         self.path = {}
         self.trajectory = []
