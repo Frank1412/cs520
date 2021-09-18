@@ -2,24 +2,32 @@
 
 from A_star_algo import *
 import time
+import sys
+import gc
+sys.setrecursionlimit(1000000000)
 
 
 def question1():
-    map = Map(101, 101)
-    map.setStartPoint(0, 0)
+
+    # map = Map(150, 101)
+    # map.setStartPoint(0, 0)
     # map.setObstacles(False, 0.1, obstacles)
     # map.setObstacles(True, 0.4)
     # algo = RepeatedAStar(map, 1)
     sum = 0
-    for i in range(100):
+    for i in range(50):
         map = Map(101, 101)
-        map.setObstacles(True, 0.34)
+        map.setObstacles(True, 0.1)
         algo = RepeatedAStar(map, 1)
         result = algo.run()
         print(result)
         if result:
             sum += 1
         map.reset()
+
+        del map, algo
+        gc.collect()
+    print(sum/100)
 
 
 def question4():

@@ -143,24 +143,51 @@ class RepeatedAStar(object):
 
         self.cost[self.start] = 0
         self.visited.add(self.start)
-        self.dfs(self.start)
+
+        node_stack = []
+        node_stack.append(self.start)
+        while node_stack:
+            cur = node_stack.pop()
+            if cur == self.goal:
+                return True
+
+            tmp_priority = PriorityQueue()
+            for (x, y) in self.directions:
+                i, j = cur[0] + x, cur[1] + y
+                if i < 0 or i >= self.map.m or j < 0 or j >= self.map.n or self.map.map[i][j] == 1:
+                    continue
+                if (i, j) in self.visited:
+                    continue
+
+                self.cost[(i, j)] = self.cost.get(cur) + 1
+                fn = self.calculate_distance((i, j), self.distanceType)
+                tmp_priority.put((-fn, (i, j)))
+                self.visited.add((i, j))
+                self.path[(i, j)] = cur
+
+            if tmp_priority.empty():
+                self.map.map[cur[0]][cur[1]] = 1
+                continue
+
+            while not tmp_priority.empty():
+                _, (x, y) = tmp_priority.get()
+                node_stack.append((x,y))
+
         result = self.map.map[self.start[0]][self.start[1]] == 1
         return result
 
+    """ recursion: stackoverflow, so we use stack"""
     def dfs(self, start):
-
+        # print(start)
         if start == self.goal:
             return
 
         tmp_priority = PriorityQueue(4)
         for (x, y) in self.directions:
             i, j = start[0] + x, start[1] + y
-            if i < 0 or i >= self.map.m or j < 0 or j >= self.map.n:
+            if i < 0 or i >= self.map.m or j < 0 or j >= self.map.n or self.map.map[i][j] == 1:
                 continue
             if (i, j) in self.visited:
-                continue
-            if self.map.map[i][j] == 1:
-                # self.blocks.add((i, j))
                 continue
 
             self.cost[(i, j)] = self.cost.get(start) + 1
