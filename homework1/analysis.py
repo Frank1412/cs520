@@ -3,31 +3,29 @@
 from A_star_algo import *
 import time
 import sys
-import gc
+import datetime
+
 sys.setrecursionlimit(1000000000)
 
 
 def question1():
-
     # map = Map(150, 101)
     # map.setStartPoint(0, 0)
     # map.setObstacles(False, 0.1, obstacles)
     # map.setObstacles(True, 0.4)
     # algo = RepeatedAStar(map, 1)
     sum = 0
-    for i in range(50):
+    for i in range(10):
         map = Map(101, 101)
-        map.setObstacles(True, 0.1)
+        map.setObstacles(True, 0.15)
         algo = RepeatedAStar(map, 1)
+        a = time.time()
         result = algo.run()
-        print(result)
+        b = time.time()
+        print(result, b-a)
         if result:
             sum += 1
         map.reset()
-
-        del map, algo
-        gc.collect()
-    print(sum/100)
 
 
 def question4():
@@ -64,7 +62,7 @@ def question5():
             result = algo.run()
             endTime = time.time()
             if (result == False): continue
-            print(i+1, len(algo.trajectory))
+            print(i + 1, len(algo.trajectory))
             # if i==2:
             #     print(algo.trajectory)
             img = Image.fromarray(np.uint8(cm.gist_earth(map.map) * 255))

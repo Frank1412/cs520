@@ -7,6 +7,7 @@ import math
 from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib import cm
+import copy
 
 
 def distance(a, b, distanceType):
@@ -75,7 +76,6 @@ class AStar(object):
     def __init__(self, map, distanceType):
         self.map = map
         self.distanceType = distanceType
-        self.cost = 0
         self.directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
         self.visited = set()
         self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
@@ -85,7 +85,14 @@ class AStar(object):
         # self.blocks = set()
 
     def calculate_distance(self, point):
-        return self.cost.get(point) + distance(point, self.map.end)
+        return self.cost.get(point) + distance(point, self.map.end, self.distanceType)
+
+    def clear(self):
+        self.visited = set()
+        self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
+        self.cost = {}
+        self.path = {}
+        self.trajectory = []
 
     def run(self):
 
@@ -125,13 +132,15 @@ class RepeatedAStar(object):
 
     def __init__(self, map, distanceType):
         self.map = map
+        self.gridWorld = Map(map.m, map.n)
         self.start = map.getStartPoint()
         self.goal = map.getEndPoint()
+        self.gridWorld.setStartPoint(self.start[0], self.start[1])
+        self.gridWorld.setEndPoint(self.goal[0], self.goal[1])
         self.distanceType = distanceType
         self.cost = 0
         self.directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
         self.visited = set()
-        # self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
         self.cost = {}
         self.path = {}
         self.trajectory = []
@@ -139,44 +148,38 @@ class RepeatedAStar(object):
     def calculate_distance(self, point, distanceType):
         return self.cost.get(point) + distance(point, self.map.end, distanceType)
 
+    """improvement of repeated A*"""
+
     def run(self):
+        start = self.start
+        As = AStar(self.gridWorld, 1)
 
-        self.cost[self.start] = 0
-        self.visited.add(self.start)
+        while True:
+            AsResult = As.run()
+            # print("start:", As.map.getStartPoint(), As.map.getEndPoint(), AsResult)
+            if not AsResult:
+                return False
+            AsPath = As.path
+            pathToGoal = []
+            last = self.goal
+            while last != start:
+                pathToGoal.insert(0, last)
+                last = AsPath[last]
 
-        node_stack = []
-        node_stack.append(self.start)
-        while node_stack:
-            cur = node_stack.pop()
-            if cur == self.goal:
+            block = []
+            for (i, j) in pathToGoal:
+                if self.map.map[i][j] == 1:
+                    block = (i, j)
+                    break
+            if not block:
                 return True
+            self.gridWorld.map[block[0]][block[1]] = 1
+            start = AsPath[block]
+            self.gridWorld.setStartPoint(start[0], start[1])
+            As.clear()
 
-            tmp_priority = PriorityQueue()
-            for (x, y) in self.directions:
-                i, j = cur[0] + x, cur[1] + y
-                if i < 0 or i >= self.map.m or j < 0 or j >= self.map.n or self.map.map[i][j] == 1:
-                    continue
-                if (i, j) in self.visited:
-                    continue
+    """ dfs recursion: stackOverflow, so we use stack"""
 
-                self.cost[(i, j)] = self.cost.get(cur) + 1
-                fn = self.calculate_distance((i, j), self.distanceType)
-                tmp_priority.put((-fn, (i, j)))
-                self.visited.add((i, j))
-                self.path[(i, j)] = cur
-
-            if tmp_priority.empty():
-                self.map.map[cur[0]][cur[1]] = 1
-                continue
-
-            while not tmp_priority.empty():
-                _, (x, y) = tmp_priority.get()
-                node_stack.append((x,y))
-
-        result = self.map.map[self.start[0]][self.start[1]] == 1
-        return result
-
-    """ recursion: stackoverflow, so we use stack"""
     def dfs(self, start):
         # print(start)
         if start == self.goal:
