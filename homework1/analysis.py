@@ -17,10 +17,12 @@ def question1():
     sum = 0
     for i in range(10):
         map = Map(101, 101)
-        map.setObstacles(True, 0.15)
+        map.setObstacles(True, 0.2)
         algo = RepeatedAStar(map, 1)
         a = time.time()
         result = algo.run()
+        if algo.trajectory:
+            print(algo.trajectory[-1])
         b = time.time()
         print(result, b-a)
         if result:
@@ -30,7 +32,7 @@ def question1():
 
 def question4():
     map = Map(101, 101)
-    map.setStartPoint(0, 0)
+    map.setStartPoint((0, 0))
     # map.setObstacles(False, 0.1, obstacles)
     # map.setObstacles(True, 0.4)
     algo = AStar(map, 1)

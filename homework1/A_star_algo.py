@@ -32,6 +32,9 @@ def distance(a, b, distanceType):
         return max(abs(b[0] - a[0]), abs(b[1] - a[1]))
 
 
+"""define a map"""
+
+
 class Map(object):
 
     def __init__(self, m=19, n=19):
@@ -42,14 +45,14 @@ class Map(object):
         self.start = (0, 0)
         self.end = (m - 1, n - 1)
 
-    def setStartPoint(self, x, y):
-        self.start = (x, y)
+    def setStartPoint(self, point):
+        self.start = point
 
     def getStartPoint(self):
         return self.start
 
-    def setEndPoint(self, x, y):
-        self.end = (x, y)
+    def setEndPoint(self, point):
+        self.end = point
 
     def getEndPoint(self):
         return self.end
@@ -58,11 +61,18 @@ class Map(object):
         self.map = np.zeros([self.m, self.n])
 
     def setObstacles(self, isRandom=True, rate=0.2, obstacles=None):
+        """
+
+        :param isRandom: wither generate blocks randomly
+        :param rate: blocks rate
+        :param obstacles: if Random==False, use given obstacles
+        :return:
+        """
         # rate = min(0.2, rate)
         if isRandom:
             for x in range(self.m):
                 for y in range(self.n):
-                    if ([x, y] == self.start) or ([x, y] == self.end):
+                    if ((x, y) == self.start) or ((x, y) == self.end):
                         continue
                     if rate > random.random():
                         self.map[x][y] = 1
@@ -72,30 +82,45 @@ class Map(object):
 
 
 class AStar(object):
+    """
+    basic A* algorithm (find the shortest path if h(n) is admissible or optimistic)
+    """
 
     def __init__(self, map, distanceType):
-        self.map = map
-        self.distanceType = distanceType
-        self.directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
-        self.visited = set()
-        self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
-        self.cost = {}
-        self.path = {}
+        self.map = map  # Map definition
+        self.distanceType = distanceType  # heuristic function type
+        self.directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]  # 4 neighbors
+        self.visited = set()  # closedSet
+        self.fringe = PriorityQueue(self.map.m * self.map.n / 2)  # PriorityQueue lowest f(n) first out
+        self.cost = {}  # g(n) steps from start to current node
+        self.path = {}  # record (child, parent) of each node
+        self.cells = []  # record every node pop up from the fringe
         self.trajectory = []
-        # self.blocks = set()
 
     def calculate_distance(self, point):
+        """
+        calculate f(n)
+        :param point:  (x, y)
+        :return: f(n) = g(n) + h(n)
+        """
         return self.cost.get(point) + distance(point, self.map.end, self.distanceType)
 
     def clear(self):
+        """
+        clear A* information of last executing
+        """
         self.visited = set()
         self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
-        self.cost = {}
         self.path = {}
+        self.cells = []
         self.trajectory = []
+        self.cost = {}
 
     def run(self):
-
+        """
+        run A*
+        :return: is the maze is solvable
+        """
         start = self.map.getStartPoint()
         self.visited.add(start)
         self.cost[start] = 0
@@ -103,18 +128,22 @@ class AStar(object):
 
         while not self.fringe.empty():
             _, cur = self.fringe.get()
-            self.trajectory.append(cur)
+            self.cells.append(cur)
+            # print(cur)
+            # print(self.map.map[:4, :4])
 
             if cur == self.map.end:
+                self.trajectory.append(cur)
+                while cur in self.path:
+                    cur = self.path[cur]
+                    self.trajectory.append(cur)
+                self.trajectory.reverse()
                 return True
             for (x, y) in self.directions:
                 i, j = cur[0] + x, cur[1] + y
                 if i < 0 or i >= self.map.m or j < 0 or j >= self.map.n:
                     continue
-                # if (i, j) in self.blocks:
-                #     continue
                 if self.map.map[i][j] == 1:
-                    # self.blocks.add((i, j))
                     continue
                 if (i, j) in self.visited:
                     continue
@@ -129,21 +158,24 @@ class AStar(object):
 
 
 class RepeatedAStar(object):
+    """
+    repeated A* algorithm
+    """
 
     def __init__(self, map, distanceType):
-        self.map = map
-        self.gridWorld = Map(map.m, map.n)
+        self.map = map  # map definition
         self.start = map.getStartPoint()
         self.goal = map.getEndPoint()
-        self.gridWorld.setStartPoint(self.start[0], self.start[1])
-        self.gridWorld.setEndPoint(self.goal[0], self.goal[1])
+        self.gridWorld = Map(map.m, map.n)  # maintain a unblocked map with same size
+        self.gridWorld.setStartPoint(self.start)
+        self.gridWorld.setEndPoint(self.goal)
         self.distanceType = distanceType
-        self.cost = 0
-        self.directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
-        self.visited = set()
-        self.cost = {}
-        self.path = {}
-        self.trajectory = []
+        self.directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]  # 4 neighbors
+        self.visited = set()  # closedSet
+        self.cost = {}  # g(n) steps from start to current node
+        self.path = {}  # record (child, parent) of each node
+        self.trajectory = []  # record every node pop up from the fringe
+        self.cells = []
 
     def calculate_distance(self, point, distanceType):
         return self.cost.get(point) + distance(point, self.map.end, distanceType)
@@ -151,66 +183,47 @@ class RepeatedAStar(object):
     """improvement of repeated A*"""
 
     def run(self):
-        start = self.start
         As = AStar(self.gridWorld, 1)
 
         while True:
-            AsResult = As.run()
-            # print("start:", As.map.getStartPoint(), As.map.getEndPoint(), AsResult)
-            if not AsResult:
+            if not As.run():
                 return False
-            AsPath = As.path
-            pathToGoal = []
-            last = self.goal
-            while last != start:
-                pathToGoal.insert(0, last)
-                last = AsPath[last]
 
-            block = []
-            for (i, j) in pathToGoal:
+            # improvement: re-start from the best place
+            # pre = []
+            # while self.trajectory and self.trajectory[-1] == As.trajectory[0]:
+            #     pre = self.trajectory.pop()
+            #     As.trajectory = As.trajectory[1:]
+            # self.trajectory.append(pre)
+
+            block, index = (), len(As.trajectory)
+            for idx, (i, j) in enumerate(As.trajectory):
                 if self.map.map[i][j] == 1:
                     block = (i, j)
+                    index = idx-1
                     break
-            if not block:
+
+                self.trajectory.append((i, j))
+                for nei in self.directions:
+                    x, y = nei[0] + i, nei[1] + j
+                    if x < 0 or x >= self.map.m or y < 0 or y >= self.map.n:
+                        continue
+                    self.visited.add((x, y))
+                    if self.map.map[x][y] == 1:
+                        As.map.map[x][y] = 1
+            # print(index)
+            # print(block, As.trajectory[index])
+            if index == len(As.trajectory):
                 return True
-            self.gridWorld.map[block[0]][block[1]] = 1
-            start = AsPath[block]
-            self.gridWorld.setStartPoint(start[0], start[1])
+            As.map.map[block[0]][block[1]] = 1
+            start = As.trajectory[index]
+            As.map.setStartPoint(start)
             As.clear()
-
-    """ dfs recursion: stackOverflow, so we use stack"""
-
-    def dfs(self, start):
-        # print(start)
-        if start == self.goal:
-            return
-
-        tmp_priority = PriorityQueue(4)
-        for (x, y) in self.directions:
-            i, j = start[0] + x, start[1] + y
-            if i < 0 or i >= self.map.m or j < 0 or j >= self.map.n or self.map.map[i][j] == 1:
-                continue
-            if (i, j) in self.visited:
-                continue
-
-            self.cost[(i, j)] = self.cost.get(start) + 1
-            fn = self.calculate_distance((i, j), self.distanceType)
-            tmp_priority.put((fn, (i, j)))
-            self.visited.add((i, j))
-            self.path[(i, j)] = start
-
-        if tmp_priority.empty():
-            self.map.map[start[0]][start[1]] = 1
-            return
-
-        while not tmp_priority.empty():
-            _, (x, y) = tmp_priority.get()
-            self.dfs((x, y))
 
 
 def findShortestPath():
     map = Map(101, 101)
-    map.setStartPoint(4, 4)
+    map.setStartPoint((4, 4))
     obstacles = [(0, 8), (1, 8), (2, 8), (3, 8), (4, 8), (5, 8), (6, 8), (7, 8),
                  (8, 7), (8, 6), (8, 5), (8, 4), (8, 3), (8, 2), (8, 1)]
     # map.setObstacles(False, 0.1, obstacles)
