@@ -175,7 +175,7 @@ class RepeatedAStar(object):
         self.cost = {}  # g(n) steps from start to current node
         self.path = {}  # record (child, parent) of each node
         self.trajectory = []  # record every node pop up from the fringe
-        self.cells = []
+        self.cells = 0
 
     def calculate_distance(self, point, distanceType):
         return self.cost.get(point) + distance(point, self.map.end, distanceType)
@@ -188,7 +188,7 @@ class RepeatedAStar(object):
         while True:
             if not As.run():
                 return False
-
+            self.cells += len(As.cells)
             # improvement: re-start from the best place
             # pre = []
             # while self.trajectory and self.trajectory[-1] == As.trajectory[0]:
@@ -202,7 +202,6 @@ class RepeatedAStar(object):
                     block = (i, j)
                     index = idx-1
                     break
-
                 self.trajectory.append((i, j))
                 for nei in self.directions:
                     x, y = nei[0] + i, nei[1] + j
