@@ -200,7 +200,7 @@ class RepeatedAStar(object):
             for idx, (i, j) in enumerate(As.trajectory):
                 if self.map.map[i][j] == 1:
                     block = (i, j)
-                    index = idx-1
+                    index = idx - 1
                     break
                 self.trajectory.append((i, j))
                 for nei in self.directions:
@@ -215,7 +215,22 @@ class RepeatedAStar(object):
             if index == len(As.trajectory):
                 return True
             As.map.map[block[0]][block[1]] = 1
+
+            # question 8 re-start from the best place
             start = As.trajectory[index]
+            while index > 0:
+                count = 4
+                for (i, j) in self.directions:
+                    x, y = start[0] + i, start[1] + j
+                    if x < 0 or x >= self.map.m or y < 0 or y >= self.map.n or As.map.map[x][y] == 1 or As.path[start] == (x, y):
+                        count -= 1
+                if count > 0:
+                    break
+                else:
+                    As.map.map[start[0]][start[1]] = 1
+                index -= 1
+                start = As.trajectory[index]
+
             As.map.setStartPoint(start)
             As.clear()
 
