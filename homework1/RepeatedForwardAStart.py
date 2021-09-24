@@ -25,7 +25,7 @@ class Maze():
         self.unseen[loc[0]][loc[1]] = self.grid[loc[0]][loc[1]]
 
 
-class MazeNode():
+class MazeNode(object):
     def __init__(self, loc, g, h):
         self.g = g
         self.h = h

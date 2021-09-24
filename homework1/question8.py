@@ -10,7 +10,7 @@ def question8():
         map.setObstacles(True, 0.2)
         algo = RepeatedAStar(map, 1)
         startTime = time.time()
-        result = algo.run()
+        result = algo.run(False)
         endTime = time.time()
         img = Image.fromarray(np.uint8(cm.gist_earth(map.map) * 255))
         path = algo.path

@@ -180,9 +180,7 @@ class RepeatedAStar(object):
     def calculate_distance(self, point, distanceType):
         return self.cost.get(point) + distance(point, self.map.end, distanceType)
 
-    """improvement of repeated A*"""
-
-    def run(self, improvement=True):
+    def run(self, bumpInto=False, improvement=False):
         As = AStar(self.gridWorld, 1)
 
         while True:
@@ -190,26 +188,14 @@ class RepeatedAStar(object):
                 return False
             self.cells += len(As.cells)
 
-            block, index = (), len(As.trajectory)
-            for idx, (i, j) in enumerate(As.trajectory):
-                if self.map.map[i][j] == 1:
-                    block = (i, j)
-                    index = idx - 1
-                    break
-                self.trajectory.append((i, j))
-                for nei in self.directions:
-                    x, y = nei[0] + i, nei[1] + j
-                    if x < 0 or x >= self.map.m or y < 0 or y >= self.map.n:
-                        continue
-                    self.visited.add((x, y))
-                    if self.map.map[x][y] == 1:
-                        As.map.map[x][y] = 1
-            # print(index)
-            # print(block, As.trajectory[index])
-            if index == len(As.trajectory):
+            if bumpInto:
+                res = self.bumpInto(As)
+            else:
+                res = self.Repeated_Astar(As)
+            # print(res)
+            if res==True:
                 return True
-            As.map.map[block[0]][block[1]] = 1
-            start = As.trajectory[index]
+            index, start = res[0], res[1]
 
             # question 8 re-start from the best place
             if improvement:
@@ -228,6 +214,43 @@ class RepeatedAStar(object):
 
             As.map.setStartPoint(start)
             As.clear()
+
+    def Repeated_Astar(self, As):
+        block, index = (), len(As.trajectory)
+        for idx, (i, j) in enumerate(As.trajectory):
+            self.trajectory.append((i, j))
+            if self.map.map[i][j] == 1:
+                block = (i, j)
+                index = idx - 1
+                break
+            for nei in self.directions:
+                x, y = nei[0] + i, nei[1] + j
+                if x < 0 or x >= self.map.m or y < 0 or y >= self.map.n:
+                    continue
+                self.visited.add((x, y))
+                if self.map.map[x][y] == 1:
+                    As.map.map[x][y] = 1
+        # print(index)
+        # print(block, As.trajectory[index])
+        if index == len(As.trajectory):
+            return True
+        As.map.map[block[0]][block[1]] = 1
+        start = As.trajectory[index]
+        return index, start
+
+    def bumpInto(self, As):
+        block, index = (), len(As.trajectory)
+        for idx, (i, j) in enumerate(As.trajectory):
+            self.trajectory.append((i, j))
+            if self.map.map[i][j] == 1:
+                block = (i, j)
+                index = idx - 1
+                break
+        if index == len(As.trajectory):
+            return True
+        As.map.map[block[0]][block[1]] = 1
+        start = As.trajectory[index]
+        return index, start
 
 
 def findShortestPath():
