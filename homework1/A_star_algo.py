@@ -182,7 +182,7 @@ class RepeatedAStar(object):
 
     """improvement of repeated A*"""
 
-    def run(self, improvement=True):
+    def run(self, improvement):
         As = AStar(self.gridWorld, 1)
 
         while True:
