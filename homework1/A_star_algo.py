@@ -180,6 +180,7 @@ class RepeatedAStar(object):
     def calculate_distance(self, point, distanceType):
         return self.cost.get(point) + distance(point, self.map.end, distanceType)
 
+
     def run(self, bumpInto=False, improvement=False):
         As = AStar(self.gridWorld, 1)
 
