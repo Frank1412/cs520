@@ -189,12 +189,6 @@ class RepeatedAStar(object):
             if not As.run():
                 return False
             self.cells += len(As.cells)
-            # improvement: re-start from the best place
-            # pre = []
-            # while self.trajectory and self.trajectory[-1] == As.trajectory[0]:
-            #     pre = self.trajectory.pop()
-            #     As.trajectory = As.trajectory[1:]
-            # self.trajectory.append(pre)
 
             block, index = (), len(As.trajectory)
             for idx, (i, j) in enumerate(As.trajectory):

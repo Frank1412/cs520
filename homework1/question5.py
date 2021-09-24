@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
 
-    total_num = 50
+    total_num = 50  # 50
     p_list = np.linspace(0.0, 0.35, 36)
     manhattan_time_list, euclidean_time_list, chebyshev_time_list = [], [], []
     for p in p_list:
