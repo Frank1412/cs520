@@ -8,7 +8,7 @@ import copy
 if __name__ == "__main__":
     nominator = 0
     denominator = 0
-    test_num = 5   # 50
+    test_num = 50   # 50
     p_list = np.linspace(0, 0.33, 10)   # 0, 0.33, 34
     ATL_list = []   # Average Trajectory Length
     ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld
@@ -69,22 +69,26 @@ if __name__ == "__main__":
 
     plt.plot(p_list, ATL_list)
     plt.plot(p_list, bump_ATL_list, color="red")
+    plt.legend(['original', 'bump into the cell'])
     plt.xlabel("density")
     plt.ylabel("Average Trajectory Length")
     plt.show()
     plt.plot(p_list, ALT_LSPFDG_list)
     plt.plot(p_list, bump_ALT_LSPFDG_list, color="red")
+    plt.legend(['original', 'bump into the cell'])
     plt.xlabel('density')
     plt.ylabel('Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld')
     plt.show()
     plt.plot(p_list, ALSPFDG_LSPFG_list)
     plt.plot(p_list, bump_ALSPFDG_LSPFG_list, color="red")
+    plt.legend(['original', 'bump into the cell'])
     plt.yticks(np.linspace(0.9, 1.05, 16))
     plt.xlabel("density")
     plt.ylabel("Length of Shortest Path in Final Discovered Gridworld / Length of Shortest Path in Full Gridworld")
     plt.show()
     plt.plot(p_list, ANCPR_list)
     plt.plot(p_list, bump_ANCPR_list, color="red")
+    plt.legend(['original', 'bump into the cell'])
     plt.xlabel('density')
     plt.ylabel('Average Number of Cells Processed by Repeated A*')
     plt.show()
