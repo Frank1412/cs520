@@ -17,7 +17,7 @@ def distance(a, b, distanceType):
         distanceType_dict = {
             1: 'Manhattan',
             2: 'Euclidean',
-            3: 'Chebyshev'
+            3: 'Chebyshev',
         }
     :param a: point a
     :param b: point b
@@ -97,13 +97,24 @@ class AStar(object):
         self.cells = []  # record every node pop up from the fringe
         self.trajectory = []
 
-    def calculate_distance(self, point):
+    def calculate_distance(self, point, admissible=True, weighted=0.8):
         """
         calculate f(n)
+        :param weighted:
+        :param admissible:
         :param point:  (x, y)
         :return: f(n) = g(n) + h(n)
         """
-        return self.cost.get(point) + distance(point, self.map.end, self.distanceType)
+        h = distance(point, self.map.end, self.distanceType)
+        g = self.cost.get(point)
+        if admissible == True:
+            return g + h
+        else:
+            if admissible == "weighted":
+                return g + weighted * h
+            else:
+                h2 = distance(point, self.map.end, 2)
+                return g + 0.5 * (h + 2*h2)
 
     def clear(self):
         """
@@ -116,7 +127,7 @@ class AStar(object):
         self.trajectory = []
         self.cost = {}
 
-    def run(self):
+    def run(self, admissible=True, coef=0.5):
         """
         run A*
         :return: is the maze is solvable
@@ -150,7 +161,7 @@ class AStar(object):
                 else:
                     self.cost[(i, j)] = self.cost.get(cur) + 1
                     self.visited.add((i, j))
-                    priority = self.calculate_distance((i, j))
+                    priority = self.calculate_distance((i, j), admissible, coef)
                     self.fringe.put((priority, (i, j)))
                     self.path[(i, j)] = cur
 
