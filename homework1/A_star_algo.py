@@ -182,7 +182,7 @@ class RepeatedAStar(object):
 
     """improvement of repeated A*"""
 
-    def run(self):
+    def run(self, improvement=True):
         As = AStar(self.gridWorld, 1)
 
         while True:
@@ -209,21 +209,22 @@ class RepeatedAStar(object):
             if index == len(As.trajectory):
                 return True
             As.map.map[block[0]][block[1]] = 1
+            start = As.trajectory[index]
 
             # question 8 re-start from the best place
-            start = As.trajectory[index]
-            while index > 0:
-                count = 4
-                for (i, j) in self.directions:
-                    x, y = start[0] + i, start[1] + j
-                    if x < 0 or x >= self.map.m or y < 0 or y >= self.map.n or As.map.map[x][y] == 1 or As.path[start] == (x, y):
-                        count -= 1
-                if count > 0:
-                    break
-                else:
-                    As.map.map[start[0]][start[1]] = 1
-                index -= 1
-                start = As.trajectory[index]
+            if improvement:
+                while index > 0:
+                    count = 4
+                    for (i, j) in self.directions:
+                        x, y = start[0] + i, start[1] + j
+                        if x < 0 or x >= self.map.m or y < 0 or y >= self.map.n or As.map.map[x][y] == 1 or As.path[start] == (x, y):
+                            count -= 1
+                    if count > 0:
+                        break
+                    else:
+                        As.map.map[start[0]][start[1]] = 1
+                    index -= 1
+                    start = As.trajectory[index]
 
             As.map.setStartPoint(start)
             As.clear()

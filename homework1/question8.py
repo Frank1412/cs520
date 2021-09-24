@@ -6,7 +6,7 @@ import time
 
 def question8():
     for _ in range(1):
-        map =  Map(101, 101)
+        map = Map(101, 101)
         map.setObstacles(True, 0.2)
         algo = RepeatedAStar(map, 1)
         startTime = time.time()
@@ -26,7 +26,8 @@ def question8():
         plt.imshow(img)
         plt.grid(linewidth=1)
 
-        plt.show() 
-    
+        plt.show()
+
+
 if __name__ == "__main__":
     question8()
