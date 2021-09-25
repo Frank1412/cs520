@@ -7,8 +7,8 @@ import copy
 
 
 def q6():
-    test_num = 1  # 50
-    p_list = np.linspace(0, 0.33, 3)  # 0, 0.33, 34
+    test_num = 10  # 50
+    p_list = np.linspace(0, 0.33, 20)  # 0, 0.33, 34
     bfs_ATL_list = []  # Average Trajectory Length
     bfs_ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld
     bfs_ALSPFDG_LSPFG_list = []  # Length of Shortest Path in Final Discovered Gridworld / Length of Shortest Path in Full Gridworld
@@ -93,8 +93,8 @@ def q6():
 
 
 def q7():
-    test_num = 1  # 20
-    p_list = np.linspace(0.1, 0.2, 2)  # 0, 0.33, 34
+    test_num = 10  # 20
+    p_list = np.linspace(0.1, 0.33, 20)  # 0, 0.33, 34
     ATL_list = []  # Average Trajectory Length
     ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld
     ALSPFDG_LSPFG_list = []  # Length of Shortest Path in Final Discovered Gridworld / Length of Shortest Path in Full Gridworld

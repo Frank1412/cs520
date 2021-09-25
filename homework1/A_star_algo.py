@@ -24,7 +24,6 @@ def distance(a, b, distanceType, ):
     :param b: point b
     :return: distance between a and b
     """
-
     if distanceType == 1:
         return abs(b[0] - a[0]) + abs(b[1] - a[1])
     elif distanceType == 2:
@@ -34,7 +33,6 @@ def distance(a, b, distanceType, ):
 
 
 def search_around(algo, algoName, fringe, cur, map, visited, cost, path, admissible=None, coef=None):
-
     for (x, y) in directions:
         i, j = cur[0] + x, cur[1] + y
         if i < 0 or i >= map.m or j < 0 or j >= map.n or map.map[i][j] == 1 or (i, j) in visited:
@@ -71,7 +69,6 @@ def repeated_step(self, algo):
 class Map(object):
 
     def __init__(self, m=19, n=19):
-
         self.map = np.zeros([m, n])
         self.m = m
         self.n = n
@@ -165,9 +162,6 @@ class AStar(object):
 
 
 class RepeatedAStar(object):
-    """
-    repeated A* algorithm
-    """
     def __init__(self, map, distanceType):
         self.map = map  # map definition
         self.start = map.start
@@ -192,11 +186,10 @@ class RepeatedAStar(object):
             if not As.run():
                 return False
             self.cells += len(As.cells)
-
             if bumpInto:
                 index, block = self.bumpInto(As)
             else:
-                index, block = repeated_step(self, As)  # self.Repeated_Astar(As)
+                index, block = repeated_step(self, As)
             if index == len(As.trajectory):
                 return True
             As.map.map[block[0]][block[1]] = 1
@@ -216,7 +209,6 @@ class RepeatedAStar(object):
                         As.map.map[start[0]][start[1]] = 1
                     index -= 1
                     start = As.trajectory[index]
-
             As.map.start = start
             As.clear()
 
@@ -284,7 +276,6 @@ class BFS(object):
 
 
 class RepeatedBFS(object):
-
     def __init__(self, map):
         self.map = map  # map definition
         self.start = map.start
@@ -302,12 +293,10 @@ class RepeatedBFS(object):
 
     def run(self):
         bfs = BFS(self.gridWorld)
-
         while True:
             if not bfs.run():
                 return False
             self.cells += len(bfs.cells)
-
             index, block = repeated_step(self, bfs)
             if index == len(bfs.trajectory):
                 return True
