@@ -5,45 +5,51 @@ import time
 
 
 def question8():
-    p_list = np.linspace(0, 0.33, 8)
-    traj_length, improved_traj_list = [],[]
+    test_num = 20
+    p_list = np.linspace(0, 0.33, 20)
+    traj_length, improved_traj_list = [], []
+    normal_time_list, improved_time_list = [], []
     for p in p_list:
-        map = Map(101, 101)
-        map.setObstacles(True, p)
-        for i in range(2):
-            algo = RepeatedAStar(map, 1)
-            startTime = time.time()
-            result = algo.run(False, i)
-            endTime = time.time()
-            print(result)
-            # if result == False:break
-            # img = Image.fromarray(np.uint8(cm.gist_earth(map.map) * 255))
-            # img = np.array(img.convert('RGB'))
-            traj = algo.trajectory
-            # for trace in traj:
-            #     img[trace[0]][trace[1]] = [0, 0, 255]
-            # start = map.start
-            # end = map.end
-            # print(img.shape)
-            # img[start[0]][start[1]] = [255, 0, 0]
-            # img[end[0]][end[1]] = [255, 0, 0]
-            # improve = {
-            #     0: "Standard Repeated A *:",
-            #     1: "Improved Repeated A *:"
-            # }
-            # plt.title(improve.get(i)+"\nTime consumption: "+str(endTime - startTime)+"\nTrajectory Length: "+str(len(traj)))
-            # plt.imshow(img)
-            # plt.grid(linewidth=1)
-            # plt.show()
-            if i:
-                improved_traj_list.append(len(traj))
-            else:
-                traj_length.append(len(traj))
+        improved_traj, normal_traj, normal_time, improved_time = 0, 0, 0, 0
+        for _ in range(test_num):
+            map = Map(101, 101)
+            map.setObstacles(True, p)
+            As = AStar(map, 1)
+            while True:
+                if not As.run():
+                    map.reset()
+                    map.setObstacles(True, p)
+                    As = AStar(map, 1)
+                else:
+                    break
+            normal_As = RepeatedAStar(copy.deepcopy(map), 1)
+            algo = RepeatedAStar(copy.deepcopy(map), 1)
+            time1 = time.time()
+            normal_As.run()
+            time2 = time.time()
+            algo.run(bumpInto=False, improvement=True)
+            time3 = time.time()
+            improved_time += time3-time2
+            normal_time += time2-time1
+            normal_traj += len(normal_As.trajectory)
+            improved_traj += len(algo.trajectory)
+
+        improved_traj_list.append(improved_traj / test_num)
+        traj_length.append(normal_traj / test_num)
+        normal_time_list.append(normal_time / test_num)
+        improved_time_list.append(improved_time / test_num)
     plt.plot(p_list, traj_length, color='red')
     plt.plot(p_list, improved_traj_list, color='blue')
     plt.legend(['Standard Repeated A *', 'Improved Repeated A *'])
     plt.xlabel("random probability p")
     plt.ylabel("trajectory length")
+    plt.title("dim = 101x101 distanceType")
+    plt.show()
+    plt.plot(p_list, normal_time_list, color='red')
+    plt.plot(p_list, improved_time_list, color='blue')
+    plt.legend(['Standard Repeated A *', 'Improved Repeated A *'])
+    plt.xlabel("random probability p")
+    plt.ylabel("running time")
     plt.title("dim = 101x101 distanceType")
     plt.show()
 
