@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     test_num = 1  # 100
-    p_list = np.linspace(0, 1, 101)
+    p_list = np.linspace(0, 1, 3)   # 0, 1, 101
     solvability = []
     for p in p_list:
         success = 0.0

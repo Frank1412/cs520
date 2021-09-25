@@ -9,7 +9,7 @@ if __name__ == "__main__":
     nominator = 0
     denominator = 0
     test_num = 1   # 50
-    p_list = np.linspace(0, 0.33, 34)   # 0, 0.33, 34
+    p_list = np.linspace(0, 0.33, 3)   # 0, 0.33, 34
     ATL_list = []   # Average Trajectory Length
     ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld
     ALSPFDG_LSPFG_list = []   # Length of Shortest Path in Final Discovered Gridworld / Length of Shortest Path in Full Gridworld
@@ -33,7 +33,7 @@ if __name__ == "__main__":
             # q1
             ATL += len(algo.trajectory)
             # q2
-            algo.gridWorld.setStartPoint((0, 0))
+            algo.gridWorld.start = (0, 0)   # setStartPoint((0, 0))
             As_gridWorld = AStar(algo.gridWorld, 1)
             As_gridWorld.run()
             ALT_LSPFDG += (len(algo.trajectory)*1.0 / len(As_gridWorld.trajectory))

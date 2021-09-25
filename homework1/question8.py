@@ -20,7 +20,7 @@ def question8():
             print(img.shape)
             for trace in algo.trajectory:
                 img[trace[0]][trace[1]] = [0, 0, 255]
-            start = map.getStartPoint()
+            start = map.start
             end = map.getEndPoint()
             img[start[0]][start[1]] = [255, 0, 0]
             img[end[0]][end[1]] = [255, 0, 0]

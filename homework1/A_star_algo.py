@@ -9,10 +9,11 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import copy
 
+directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]
 
-def distance(a, b, distanceType):
+
+def distance(a, b, distanceType, ):
     """
-
     :param distanceType:
         distanceType_dict = {
             1: 'Manhattan',
@@ -31,6 +32,42 @@ def distance(a, b, distanceType):
     elif distanceType == 3:
         return max(abs(b[0] - a[0]), abs(b[1] - a[1]))
 
+
+def search_around(algo, algoName, fringe, cur, map, visited, cost, path, admissible=None, coef=None):
+
+    for (x, y) in directions:
+        i, j = cur[0] + x, cur[1] + y
+        if i < 0 or i >= map.m or j < 0 or j >= map.n or map.map[i][j] == 1 or (i, j) in visited:
+            continue
+        else:
+            cost[(i, j)] = cost.get(cur) + 1
+            visited.add((i, j))
+            if algoName == "A*":
+                priority = algo.calculate_distance((i, j), admissible, coef)
+                fringe.put((priority, (i, j)))
+            else:
+                fringe.put((i, j))
+            path[(i, j)] = cur
+
+
+def repeated_step(self, algo):
+    block, index = (), len(algo.trajectory)
+    for idx, (i, j) in enumerate(algo.trajectory):
+        self.trajectory.append((i, j))
+        if self.map.map[i][j] == 1:
+            block = (i, j)
+            index = idx - 1
+            break
+        for nei in directions:
+            x, y = nei[0] + i, nei[1] + j
+            if x < 0 or x >= self.map.m or y < 0 or y >= self.map.n:
+                continue
+            self.visited.add((x, y))
+            if self.map.map[x][y] == 1:
+                algo.map.map[x][y] = 1
+    return index, block
+
+
 class Map(object):
 
     def __init__(self, m=19, n=19):
@@ -41,30 +78,16 @@ class Map(object):
         self.start = (0, 0)
         self.end = (m - 1, n - 1)
 
-    def setStartPoint(self, point):
-        self.start = point
-
-    def getStartPoint(self):
-        return self.start
-
-    def setEndPoint(self, point):
-        self.end = point
-
-    def getEndPoint(self):
-        return self.end
-
     def reset(self):
         self.map = np.zeros([self.m, self.n])
 
     def setObstacles(self, isRandom=True, rate=0.2, obstacles=None):
         """
-
         :param isRandom: wither generate blocks randomly
         :param rate: blocks rate
         :param obstacles: if Random==False, use given obstacles
         :return:
         """
-        # rate = min(0.2, rate)
         if isRandom:
             for x in range(self.m):
                 for y in range(self.n):
@@ -81,7 +104,6 @@ class AStar(object):
     """
     basic A* algorithm (find the shortest path if h(n) is admissible or optimistic)
     """
-
     def __init__(self, map, distanceType):
         self.map = map  # Map definition
         self.distanceType = distanceType  # heuristic function type
@@ -110,12 +132,9 @@ class AStar(object):
                 return g + weighted * h
             else:
                 h2 = distance(point, self.map.end, 2)
-                return g + 0.5 * (h + 2*h2)
+                return g + 0.5 * (h + 2 * h2)
 
     def clear(self):
-        """
-        clear A* information of last executing
-        """
         self.visited = set()
         self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
         self.path = {}
@@ -125,20 +144,15 @@ class AStar(object):
 
     def run(self, admissible=True, coef=0.5):
         """
-        run A*
         :return: is the maze is solvable
         """
-        start = self.map.getStartPoint()
+        start = self.map.start  # getStartPoint()
         self.visited.add(start)
         self.cost[start] = 0
         self.fringe.put((0, start))
-
         while not self.fringe.empty():
             _, cur = self.fringe.get()
             self.cells.append(cur)
-            # print(cur)
-            # print(self.map.map[:4, :4])
-
             if cur == self.map.end:
                 self.trajectory.append(cur)
                 while cur in self.path:
@@ -146,21 +160,7 @@ class AStar(object):
                     self.trajectory.append(cur)
                 self.trajectory.reverse()
                 return True
-            for (x, y) in self.directions:
-                i, j = cur[0] + x, cur[1] + y
-                if i < 0 or i >= self.map.m or j < 0 or j >= self.map.n:
-                    continue
-                if self.map.map[i][j] == 1:
-                    continue
-                if (i, j) in self.visited:
-                    continue
-                else:
-                    self.cost[(i, j)] = self.cost.get(cur) + 1
-                    self.visited.add((i, j))
-                    priority = self.calculate_distance((i, j), admissible, coef)
-                    self.fringe.put((priority, (i, j)))
-                    self.path[(i, j)] = cur
-
+            search_around(self, "A*", self.fringe, cur, self.map, self.visited, self.cost, self.path, admissible, coef)
         return False
 
 
@@ -168,16 +168,14 @@ class RepeatedAStar(object):
     """
     repeated A* algorithm
     """
-
     def __init__(self, map, distanceType):
         self.map = map  # map definition
-        self.start = map.getStartPoint()
-        self.goal = map.getEndPoint()
+        self.start = map.start
+        self.goal = map.end
         self.gridWorld = Map(map.m, map.n)  # maintain a unblocked map with same size
-        self.gridWorld.setStartPoint(self.start)
-        self.gridWorld.setEndPoint(self.goal)
+        self.gridWorld.start = self.start
+        self.gridWorld.end = self.goal
         self.distanceType = distanceType
-        self.directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]  # 4 neighbors
         self.visited = set()  # closedSet
         self.cost = {}  # g(n) steps from start to current node
         self.path = {}  # record (child, parent) of each node
@@ -196,19 +194,19 @@ class RepeatedAStar(object):
             self.cells += len(As.cells)
 
             if bumpInto:
-                res = self.bumpInto(As)
+                index, block = self.bumpInto(As)
             else:
-                res = self.Repeated_Astar(As)
-            # print(res)
-            if res == True:
+                index, block = repeated_step(self, As)  # self.Repeated_Astar(As)
+            if index == len(As.trajectory):
                 return True
-            index, start = res[0], res[1]
+            As.map.map[block[0]][block[1]] = 1
+            start = As.trajectory[index]
 
             # question 8 re-start from the best place
             if improvement:
                 while index > 0:
                     count = 4
-                    for (i, j) in self.directions:
+                    for (i, j) in directions:
                         x, y = start[0] + i, start[1] + j
                         if x < 0 or x >= self.map.m or y < 0 or y >= self.map.n or As.map.map[x][y] == 1 or As.path[start] == (x, y):
                             count -= 1
@@ -219,31 +217,8 @@ class RepeatedAStar(object):
                     index -= 1
                     start = As.trajectory[index]
 
-            As.map.setStartPoint(start)
+            As.map.start = start
             As.clear()
-
-    def Repeated_Astar(self, As):
-        block, index = (), len(As.trajectory)
-        for idx, (i, j) in enumerate(As.trajectory):
-            self.trajectory.append((i, j))
-            if self.map.map[i][j] == 1:
-                block = (i, j)
-                index = idx - 1
-                break
-            for nei in self.directions:
-                x, y = nei[0] + i, nei[1] + j
-                if x < 0 or x >= self.map.m or y < 0 or y >= self.map.n:
-                    continue
-                self.visited.add((x, y))
-                if self.map.map[x][y] == 1:
-                    As.map.map[x][y] = 1
-        # print(index)
-        # print(block, As.trajectory[index])
-        if index == len(As.trajectory):
-            return True
-        As.map.map[block[0]][block[1]] = 1
-        start = As.trajectory[index]
-        return index, start
 
     def bumpInto(self, As):
         block, index = (), len(As.trajectory)
@@ -253,20 +228,16 @@ class RepeatedAStar(object):
                 block = (i, j)
                 index = idx - 1
                 break
-        if index == len(As.trajectory):
-            return True
-        As.map.map[block[0]][block[1]] = 1
-        start = As.trajectory[index]
-        return index, start
+        return index, block
 
 
 class BFS(object):
     def __init__(self, map):
         self.map = map  # map definition
-        self.start = map.getStartPoint()
-        self.goal = map.getEndPoint()
+        self.start = map.start  # getStartPoint()
+        self.goal = map.end
         self.directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]  # 4 neighbors
-        self.queue = Queue(self.map.m + self.map.n)     # queue first in first out
+        self.queue = Queue(self.map.m + self.map.n)  # queue first in first out
         self.visited = set()  # closedSet
         self.cost = {}  # g(n) steps from start to current node
         self.path = {}  # record (child, parent) of each node
@@ -285,11 +256,9 @@ class BFS(object):
         self.queue.put(self.start)
         self.visited.add(self.start)
         self.cost[self.start] = 0
-
         while not self.queue.empty():
             cur = self.queue.get()
             self.cells.append(cur)
-
             if cur == self.map.end:
                 self.trajectory.append(cur)
                 while cur in self.path:
@@ -297,6 +266,7 @@ class BFS(object):
                     self.trajectory.append(cur)
                 self.trajectory.reverse()
                 return True
+            search_around(self, "bfs", self.queue, cur, self.map, self.visited, self.cost, self.path)
             for (x, y) in self.directions:
                 i, j = cur[0] + x, cur[1] + y
                 if i < 0 or i >= self.map.m or j < 0 or j >= self.map.n:
@@ -317,11 +287,11 @@ class RepeatedBFS(object):
 
     def __init__(self, map):
         self.map = map  # map definition
-        self.start = map.getStartPoint()
-        self.goal = map.getEndPoint()
+        self.start = map.start
+        self.goal = map.end
         self.gridWorld = Map(map.m, map.n)  # maintain a unblocked map with same size
-        self.gridWorld.setStartPoint(self.start)
-        self.gridWorld.setEndPoint(self.goal)
+        self.gridWorld.start = self.start
+        self.gridWorld.goal = self.goal
         self.directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]  # 4 neighbors
         self.queue = Queue()  # queue first in first out
         self.visited = set()  # closedSet
@@ -338,36 +308,19 @@ class RepeatedBFS(object):
                 return False
             self.cells += len(bfs.cells)
 
-            block, index = (), len(bfs.trajectory)
-            for idx, (i, j) in enumerate(bfs.trajectory):
-                self.trajectory.append((i, j))
-                if self.map.map[i][j] == 1:
-                    block = (i, j)
-                    index = idx - 1
-                    break
-                for nei in self.directions:
-                    x, y = nei[0] + i, nei[1] + j
-                    if x < 0 or x >= self.map.m or y < 0 or y >= self.map.n:
-                        continue
-                    self.visited.add((x, y))
-                    if self.map.map[x][y] == 1:
-                        bfs.map.map[x][y] = 1
-
+            index, block = repeated_step(self, bfs)
             if index == len(bfs.trajectory):
                 return True
             bfs.map.map[block[0]][block[1]] = 1
-            start = bfs.trajectory[index]
-            bfs.map.setStartPoint(start)
+            bfs.map.start = bfs.trajectory[index]
             bfs.clear()
 
     def bump_into(self):
         bfs = BFS(self.gridWorld)
-
         while True:
             if not bfs.run():
                 return False
             self.cells += len(bfs.cells)
-
             block, index = (), len(bfs.trajectory)
             for idx, (i, j) in enumerate(bfs.trajectory):
                 self.trajectory.append((i, j))
@@ -375,62 +328,9 @@ class RepeatedBFS(object):
                     block = (i, j)
                     index = idx - 1
                     break
-
             if index == len(bfs.trajectory):
                 return True
             bfs.map.map[block[0]][block[1]] = 1
             start = bfs.trajectory[index]
-            bfs.map.setStartPoint(start)
+            bfs.map.start = start
             bfs.clear()
-
-
-def findShortestPath():
-    map = Map(101, 101)
-    map.setStartPoint((4, 4))
-    obstacles = [(0, 8), (1, 8), (2, 8), (3, 8), (4, 8), (5, 8), (6, 8), (7, 8),
-                 (8, 7), (8, 6), (8, 5), (8, 4), (8, 3), (8, 2), (8, 1)]
-    # map.setObstacles(False, 0.1, obstacles)
-    map.setObstacles(True, 0.2)
-    # print(map.map)
-    algo = AStar(map, 1)
-    sum = 0
-    for i in range(100):
-        map = Map(101, 101)
-        map.setObstacles(True, 0.1)
-        algo = AStar(map, 1)
-        result = algo.run()
-        print(result)
-        if result:
-            sum += 1
-    print(sum / 100)
-    path = algo.path
-    last = map.end
-    while last in path:
-        # print(last, path[last])
-        last = path[last]
-
-    img = Image.fromarray(np.uint8(cm.gist_earth(map.map) * 255))
-
-    # mymap = np.array(img)  # 图像转化为二维数组
-    # 绘制路径
-    img = np.array(img.convert('RGB'))
-    print(img.shape)
-    last = map.end
-    while last in path:
-        img[last[0]][last[1]] = [0, 255, 255]
-        last = path[last]
-    start = map.getStartPoint()
-    end = map.getEndPoint()
-    img[start[0]][start[1]] = [255, 0, 0]
-    img[end[0]][end[1]] = [255, 0, 0]
-    ax = plt.gca()
-    # ax.set_xticks(range(101))
-    # ax.set_yticks(range(101))
-    plt.imshow(img)
-    plt.grid(linewidth=1)
-    # plt.axis('off')
-    plt.show()
-
-
-if __name__ == "__main__":
-    findShortestPath()

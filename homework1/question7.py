@@ -6,8 +6,8 @@ from datetime import datetime
 import copy
 
 if __name__ == "__main__":
-    test_num = 50   # 50
-    p_list = np.linspace(0, 0.33, 10)   # 0, 0.33, 34
+    test_num = 1   # 50
+    p_list = np.linspace(0, 0.33, 3)   # 0, 0.33, 34
     ATL_list = []   # Average Trajectory Length
     ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld
     ALSPFDG_LSPFG_list = []   # Length of Shortest Path in Final Discovered Gridworld / Length of Shortest Path in Full Gridworld
@@ -39,11 +39,11 @@ if __name__ == "__main__":
             ATL += len(algo.trajectory)
             bump_ATL += len(bump_algo.trajectory)
             # q2
-            algo.gridWorld.setStartPoint((0, 0))
+            algo.gridWorld.start = (0, 0)   #setStartPoint((0, 0))
             As_gridWorld = AStar(algo.gridWorld, 1)
             As_gridWorld.run()
             ALT_LSPFDG += (len(algo.trajectory)*1.0 / len(As_gridWorld.trajectory))
-            bump_algo.gridWorld.setStartPoint((0, 0))
+            bump_algo.gridWorld.start = (0, 0)  # setStartPoint((0, 0))
             bump_As_gridWorld = AStar(bump_algo.gridWorld, 1)
             bump_As_gridWorld.run()
             bump_ALT_LSPFDG += (len(bump_algo.trajectory) * 1.0 / len(bump_As_gridWorld.trajectory))
