@@ -6,8 +6,6 @@ from datetime import datetime
 import copy
 
 if __name__ == "__main__":
-    nominator = 0
-    denominator = 0
     test_num = 50   # 50
     p_list = np.linspace(0, 0.33, 10)   # 0, 0.33, 34
     ATL_list = []   # Average Trajectory Length

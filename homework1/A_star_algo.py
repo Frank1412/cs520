@@ -2,7 +2,7 @@
 
 import numpy as np
 import random
-from queue import PriorityQueue
+from queue import PriorityQueue, Queue
 import math
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -30,10 +30,6 @@ def distance(a, b, distanceType):
         return math.sqrt((b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1]))
     elif distanceType == 3:
         return max(abs(b[0] - a[0]), abs(b[1] - a[1]))
-
-
-"""define a map"""
-
 
 class Map(object):
 
@@ -262,6 +258,130 @@ class RepeatedAStar(object):
         As.map.map[block[0]][block[1]] = 1
         start = As.trajectory[index]
         return index, start
+
+
+class BFS(object):
+    def __init__(self, map):
+        self.map = map  # map definition
+        self.start = map.getStartPoint()
+        self.goal = map.getEndPoint()
+        self.directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]  # 4 neighbors
+        self.queue = Queue(self.map.m + self.map.n)     # queue first in first out
+        self.visited = set()  # closedSet
+        self.cost = {}  # g(n) steps from start to current node
+        self.path = {}  # record (child, parent) of each node
+        self.trajectory = []  # record every node pop up from the fringe
+        self.cells = []
+
+    def clear(self):
+        self.visited = set()
+        self.queue = Queue(self.map.m + self.map.n)
+        self.path = {}
+        self.trajectory = []
+        self.cost = {}
+        self.cells = []
+
+    def run(self):
+        self.queue.put(self.start)
+        self.visited.add(self.start)
+        self.cost[self.start] = 0
+
+        while not self.queue.empty():
+            cur = self.queue.get()
+            self.cells.append(cur)
+
+            if cur == self.map.end:
+                self.trajectory.append(cur)
+                while cur in self.path:
+                    cur = self.path[cur]
+                    self.trajectory.append(cur)
+                self.trajectory.reverse()
+                return True
+            for (x, y) in self.directions:
+                i, j = cur[0] + x, cur[1] + y
+                if i < 0 or i >= self.map.m or j < 0 or j >= self.map.n:
+                    continue
+                if self.map.map[i][j] == 1:
+                    continue
+                if (i, j) in self.visited:
+                    continue
+                else:
+                    self.cost[(i, j)] = self.cost.get(cur) + 1
+                    self.visited.add((i, j))
+                    self.queue.put((i, j))
+                    self.path[(i, j)] = cur
+        return False
+
+
+class RepeatedBFS(object):
+
+    def __init__(self, map):
+        self.map = map  # map definition
+        self.start = map.getStartPoint()
+        self.goal = map.getEndPoint()
+        self.gridWorld = Map(map.m, map.n)  # maintain a unblocked map with same size
+        self.gridWorld.setStartPoint(self.start)
+        self.gridWorld.setEndPoint(self.goal)
+        self.directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]  # 4 neighbors
+        self.queue = Queue()  # queue first in first out
+        self.visited = set()  # closedSet
+        self.cost = {}  # g(n) steps from start to current node
+        self.path = {}  # record (child, parent) of each node
+        self.trajectory = []  # record every node pop up from the fringe
+        self.cells = 0
+
+    def run(self):
+        bfs = BFS(self.gridWorld)
+
+        while True:
+            if not bfs.run():
+                return False
+            self.cells += len(bfs.cells)
+
+            block, index = (), len(bfs.trajectory)
+            for idx, (i, j) in enumerate(bfs.trajectory):
+                self.trajectory.append((i, j))
+                if self.map.map[i][j] == 1:
+                    block = (i, j)
+                    index = idx - 1
+                    break
+                for nei in self.directions:
+                    x, y = nei[0] + i, nei[1] + j
+                    if x < 0 or x >= self.map.m or y < 0 or y >= self.map.n:
+                        continue
+                    self.visited.add((x, y))
+                    if self.map.map[x][y] == 1:
+                        bfs.map.map[x][y] = 1
+
+            if index == len(bfs.trajectory):
+                return True
+            bfs.map.map[block[0]][block[1]] = 1
+            start = bfs.trajectory[index]
+            bfs.map.setStartPoint(start)
+            bfs.clear()
+
+    def bump_into(self):
+        bfs = BFS(self.gridWorld)
+
+        while True:
+            if not bfs.run():
+                return False
+            self.cells += len(bfs.cells)
+
+            block, index = (), len(bfs.trajectory)
+            for idx, (i, j) in enumerate(bfs.trajectory):
+                self.trajectory.append((i, j))
+                if self.map.map[i][j] == 1:
+                    block = (i, j)
+                    index = idx - 1
+                    break
+
+            if index == len(bfs.trajectory):
+                return True
+            bfs.map.map[block[0]][block[1]] = 1
+            start = bfs.trajectory[index]
+            bfs.map.setStartPoint(start)
+            bfs.clear()
 
 
 def findShortestPath():
