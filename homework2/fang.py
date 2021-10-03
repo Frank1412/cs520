@@ -23,3 +23,5 @@ def block_update(x, N, visited, Maze, C, B, E, H, m, n):
     for i, j in getAllNeighbors(x, m, n):
         B[i][j] += 1
     return
+
+class 
