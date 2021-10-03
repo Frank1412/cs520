@@ -43,14 +43,14 @@ def question8():
     plt.legend(['Standard Repeated A *', 'Improved Repeated A *'])
     plt.xlabel("random probability p")
     plt.ylabel("trajectory length")
-    plt.title("dim = 101x101 distanceType")
+    plt.title("dim = 101x101 Manhattan")
     plt.show()
     plt.plot(p_list, normal_time_list, color='red')
     plt.plot(p_list, improved_time_list, color='blue')
     plt.legend(['Standard Repeated A *', 'Improved Repeated A *'])
     plt.xlabel("random probability p")
     plt.ylabel("running time")
-    plt.title("dim = 101x101 distanceType")
+    plt.title("dim = 101x101 Manhattan")
     plt.show()
 
 
