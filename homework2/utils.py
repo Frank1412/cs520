@@ -25,9 +25,11 @@ def isValid(x, m, n):
     return 0 <= x[0] < m and 0 <= x[1] < n
 
 
-def initializeN(Maze):
-    m, n = len(Maze), len(Maze[0])
+def initialize(map):
+    m, n = len(map), len(map[0])
+    Maze = np.full([m,n], 2)
     N = np.full((m, n), 8)
+    C = np.full([m, n], -10)
     B = np.zeros([m, n])
     E = np.zeros([m, n])
     H = np.zeros([m, n])
@@ -37,22 +39,45 @@ def initializeN(Maze):
                 N[i][j] = 3
             elif isBorder((i, j), m, n):
                 N[i][j] = 5
-    return N
+    return Maze, N, C, B, E, H
 
-def getAllNeighbors(x,m,n):
+
+def getAllNeighbors(x, m, n):
     neighbors = []
     for dir in directions:
-        x1 = x[0]+dir[0]
-        y1 = x[1]+dir[1]
-        if x1>=0 and x1<m and y1>=0 and y1<n:
-            neighbors.append((x1,y1))
+        x1 = x[0] + dir[0]
+        y1 = x[1] + dir[1]
+        if 0 <= x1 < m and 0 <= y1 < n:
+            neighbors.append((x1, y1))
     return neighbors
-#shen
-#grid is the random generated 2d array with probability p
-#This function is to calulate the value of C of the original gridworld
-def calculateC(grid,C,m,n):
+
+
+def updateMaze(x, Maze, pivot, m, n):
+    if pivot == 1:
+        for i, j in getAllNeighbors(x, m, n):
+            if Maze[i][j] != 1:
+                Maze[i][j] = 0
+    elif pivot == 0:
+        for i, j in getAllNeighbors(x, m, n):
+            if Maze[i][j] != 0:
+                Maze[i][j] = 1
+
+
+def updateAllVisited(visited, m, n, Maze, C, B, N, E, H):
+    for i, j in visited:
+        if C[i][j] == B[i][j]:
+            updateMaze((i, j), Maze, 1, m, n)
+            continue
+        if N[i][j] - C[i][j] == E[i][j]:
+            updateMaze((i, j), Maze, 0, m, n)
+
+
+# shen
+# grid is the random generated 2d array with probability p
+# This function is to calulate the value of C of the original gridworld
+def calculateC(grid, C, m, n):
     for i in range(m):
         for j in range(n):
-            for nei in getAllNeighbors((i,j),m,n):
-                C[i][j]+=grid[nei[0]][nei[1]]
+            for nei in getAllNeighbors((i, j), m, n):
+                C[i][j] += grid[nei[0]][nei[1]]
     return C

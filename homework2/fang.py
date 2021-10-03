@@ -4,7 +4,7 @@ import numpy as np
 from utils import *
 
 
-def block_update(x, N, visited, Maze, C, B, E, H, m, n):
+def block_update(x, N, Map, visited, Maze, C, B, E, H, m, n):
     """
     when we meet block, update by latest information
     :param N: the number of neighbors cell x has.
@@ -17,11 +17,9 @@ def block_update(x, N, visited, Maze, C, B, E, H, m, n):
     :return:
     """
     Maze[x[0]][x[1]] = 1
-    C[x[0]][x[1]] = sense(x, Maze, C)
+    C[x[0]][x[1]] = sense(x, Map, C)
     E[x[0]][x[1]] = N[x[0]][x[1]] - C[x[0]][x[1]]
     # H[x[0]][x[1]] = updateH(x, Maze, C[x[0]][x[1]], H, m, n)
     for i, j in getAllNeighbors(x, m, n):
         B[i][j] += 1
     return
-
-class 
