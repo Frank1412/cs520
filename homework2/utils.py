@@ -13,17 +13,6 @@ def sense(x, Map, C):
     return blocks
 
 
-def updateMaze(x, Maze, pivot, m, n):
-    if pivot == 1:
-        for i, j in getAllNeighbors(x, m, n):
-            if Maze[i][j] != 1:
-                Maze[i][j] = 0
-    elif pivot == 0:
-        for i, j in getAllNeighbors(x, m, n):
-            if Maze[i][j] != 0:
-                Maze[i][j] = 1
-
-
 def isVertex(x, m, n):
     return (x[0] == 0 and x[1] == 0) or (x[0] == 0 and x[1] == n - 1) or (x[0] == m - 1 and x[1] == 0) or (x[0] == m - 1 and x[1] == n - 1)
 
@@ -41,30 +30,29 @@ def initializeN(Maze):
     N = np.full((m, n), 8)
     B = np.zeros([m, n])
     E = np.zeros([m, n])
-    H = np.full([m, n], 8)
+    H = np.zeros([m, n])
     for i in range(m):
         for j in range(n):
             if isVertex((i, j), m, n):
-                N[i][j], H[i][j] = 3, 3
+                N[i][j] = 3
             elif isBorder((i, j), m, n):
-                N[i][j], H[i][j] = 5, 5
+                N[i][j] = 5
     return N
 
-
-def getAllNeighbors(x, m, n):  # return valid neighbors
+def getAllNeighbors(x,m,n):
     neighbors = []
     for dir in directions:
-        x1 = x[0] + dir[0]
-        y1 = x[1] + dir[1]
-        if 0 <= x1 < m and 0 <= y1 < n:
-            neighbors.append((x1, y1))
+        x1 = x[0]+dir[0]
+        y1 = x[1]+dir[1]
+        if x1>=0 and x1<m and y1>=0 and y1<n:
+            neighbors.append((x1,y1))
     return neighbors
-
-
-def updateAllVisited(visited, m, n, Maze, C, B, N, E, H):
-    for i, j in visited:
-        if C[i][j] == B[i][j]:
-            updateMaze((i, j), Maze, 1, m, n)
-            continue
-        if N[i][j] - C[i][j] == E[i][j]:
-            updateMaze((i, j), Maze, 0, m, n)
+#shen
+#grid is the random generated 2d array with probability p
+#This function is to calulate the value of C of the original gridworld
+def calculateC(grid,C,m,n):
+    for i in range(m):
+        for j in range(n):
+            for nei in getAllNeighbors((i,j),m,n):
+                C[i][j]+=grid[nei[0]][nei[1]]
+    return C
