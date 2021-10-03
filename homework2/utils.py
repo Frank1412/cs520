@@ -25,6 +25,7 @@ def isValid(x, m, n):
     return 0 <= x[0] < m and 0 <= x[1] < n
 
 
+
 def initializeN(Maze):
     m, n = len(Maze), len(Maze[0])
     N = np.full((m, n), 8)
