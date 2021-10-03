@@ -1,6 +1,7 @@
 # encoding=utf-8
 
 import numpy as np
+import copy
 
 directions = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]
 
@@ -32,13 +33,13 @@ def initialize(map):
     C = np.full([m, n], -10)
     B = np.zeros([m, n])
     E = np.zeros([m, n])
-    H = np.zeros([m, n])
     for i in range(m):
         for j in range(n):
             if isVertex((i, j), m, n):
                 N[i][j] = 3
             elif isBorder((i, j), m, n):
                 N[i][j] = 5
+    H = copy.deepcopy(N)
     return Maze, N, C, B, E, H
 
 
