@@ -4,7 +4,7 @@ import numpy as np
 from utils import *
 
 
-def block_update(x, N, visited, Maze, C, B, E, H):
+def block_update(x, N, visited, Maze, C, B, E, H, m, n):
     """
     when we meet block, update by latest information
     :param N: the number of neighbors cell x has.
@@ -18,6 +18,9 @@ def block_update(x, N, visited, Maze, C, B, E, H):
     """
     Maze[x[0]][x[1]] = 1
     C[x[0]][x[1]] = sense(x, Maze, C)
+    for nei in directions:
+        point = (x[0] + nei[0], x[1]+nei[1])
+        if isVertex(point, m, n)
     return
 
 

@@ -21,6 +21,10 @@ def isBorder(x, m, n):
     return x[0] == 0 or x[0] == m - 1 or x[1] == 0 or x[1] == n - 1
 
 
+def isValid(x, m, n):
+    return 0 <= x[0] < m and 0 <= x[1] < n
+
+
 def initializeN(Maze):
     m, n = len(Maze), len(Maze[0])
     N = np.full((m, n), 8)
@@ -34,4 +38,3 @@ def initializeN(Maze):
             elif isBorder((i, j), m, n):
                 N[i][j] = 5
     return N
-
