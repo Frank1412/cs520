@@ -38,7 +38,7 @@ def initializeN(Maze):
             elif isBorder((i, j), m, n):
                 N[i][j] = 5
     return N
-
+#shen
 def getAllNeighbors(x,m,n):
     neighbors = []
     for dir in directions:
@@ -47,3 +47,13 @@ def getAllNeighbors(x,m,n):
         if x1>=0 and x1<m and y1>=0 and y1<n:
             neighbors.append((x1,y1))
     return neighbors
+#shen
+#grid is the random generated 2d array with probability p
+#This function is to calulate the value of C of the original gridworld
+def calculateC(grid,C,m,n):
+    for i in range(m):
+        for j in range(n):
+            for nei in getAllNeighbors((i,j),m,n):
+                C[i][j]+=grid[nei[0]][nei[1]]
+    return C
+
