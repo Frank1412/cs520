@@ -18,11 +18,8 @@ def block_update(x, N, visited, Maze, C, B, E, H, m, n):
     """
     Maze[x[0]][x[1]] = 1
     C[x[0]][x[1]] = sense(x, Maze, C)
-    for nei in directions:
-        i, j = (x[0] + nei[0], x[1] + nei[1])
-        if isValid((i, j), m, n) and Maze[i][j] == 2:
-            B[i][j] += 1
-            E[i][j] -= 1
-        if C[i][j] == B[i][j]:
-            for
+    E[x[0]][x[1]] = N[x[0]][x[1]] - C[x[0]][x[1]]
+    # H[x[0]][x[1]] = updateH(x, Maze, C[x[0]][x[1]], H, m, n)
+    for i, j in getAllNeighbors(x, m, n):
+        B[i][j] += 1
     return
