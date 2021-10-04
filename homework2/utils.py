@@ -35,11 +35,13 @@ def initialize(map):
     E = np.zeros([m, n])
     for i in range(m):
         for j in range(n):
+            # C[i][j] = sense((i, j), map, m, n)
             if isVertex((i, j), m, n):
                 N[i][j] = 3
             elif isBorder((i, j), m, n):
                 N[i][j] = 5
     H = copy.deepcopy(N)
+    # H = np.full([m, n], -1)
     return Maze, N, C, B, E, H
 
 
