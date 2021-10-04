@@ -143,7 +143,7 @@ class AStar(object):
         """
         :return: is the maze is solvable
         """
-        print(self.visited)
+        # print(self.visited)
         start = self.map.start  # getStartPoint()
         self.visited.add(start)
         self.cost[start] = 0

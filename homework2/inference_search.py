@@ -21,17 +21,6 @@ class InferenceSearch(object):
         self.trajectory = []
 
     def block_update(self, x):
-        """
-        when we meet block, update by latest information
-        :param N: the number of neighbors cell x has.
-        :param visited: Whether or not cell x has been visited.
-        :param Maze: Whether or not cell x has been confirmed as empty or blocked, or is currently unconfirmed.
-        :param C: the number of neighbors of x that are sensed to be blocked.
-        :param B: the number of neighbors of x that have been confirmed to be blocked.
-        :param E: the number of neighbors of x that have been confirmed to be empty.
-        :param H: the number of neighbors of x that are still hidden or unconfirmed either way.
-        :return:
-        """
         # self.Maze[x[0]][x[1]] = 1
         for i, j in getAllNeighbors(x, self.m, self.n):
             self.H[i][j] -= 1
@@ -62,6 +51,7 @@ class InferenceSearch(object):
                     self.Maze[i][j] = 0
                     for nei in getAllNeighbors((i, j), self.m, self.n):
                         if self.H[nei[0]][nei[1]] != 0:
+                        # if self.Maze[nei[0]][nei[1]] == 2:
                             self.E[nei[0]][nei[1]] += 1
                             self.H[nei[0]][nei[1]] -= 1
 
@@ -71,28 +61,31 @@ class InferenceSearch(object):
                     self.Maze[i][j] = 1
                     for nei in getAllNeighbors((i, j), self.m, self.n):
                         if self.H[nei[0]][nei[1]] != 0:
+                        # if self.Maze[nei[0]][nei[1]] == 2:
                             self.B[nei[0]][nei[1]] += 1
                             self.H[nei[0]][nei[1]] -= 1
 
     def updateAllVisited(self):
         # for i, j in self.visited:
-        for t in range(len(self.trajectory) - 1, -1, -1):
-            i, j = self.trajectory[t]
+        for t in range(len(self.trajectory)):
+            i, j = self.trajectory[len(self.trajectory)-t-1]
             if self.H[i][j] == 0:
                 continue
             if self.C[i][j] == self.B[i][j]:
+                print('C=B', self.C[i][j], self.B[i][j], (i, j))
                 self.updateMaze((i, j), 1)
                 continue
             if self.N[i][j] - self.C[i][j] == self.E[i][j]:
+                print('N-C=E', self.N[i][j], self.C[i][j], self.E[i][j], (i, j))
                 self.updateMaze((i, j), 0)
 
     def inference(self, As):
+        print(As.trajectory)
         block, index = (), len(As.trajectory)
         for idx, x in enumerate(As.trajectory):
             print(x)
-            self.trajectory.append(x)
             self.C[x[0]][x[1]] = sense(x, self.map.map, self.m, self.n)
-            self.visited.add(x)
+            # self.trajectory.append(x)
 
             if self.map.map[x[0]][x[1]] == 1:
                 self.Maze[x[0]][x[1]] = 1
@@ -101,6 +94,8 @@ class InferenceSearch(object):
                 print(x, index)
                 break
             else:
+                self.trajectory.append(x)
+                # self.C[x[0]][x[1]] = sense(x, self.map.map, self.m, self.n)
                 self.Maze[x[0]][x[1]] = 0
                 if self.C[x[0]][x[1]] == 0:
                     self.update_NoBlock_NoSense(x)  # shenchong
@@ -112,6 +107,8 @@ class InferenceSearch(object):
     def run(self):
         As = AStar(self.maze, 1)
         while True:
+            print(As.map.map)
+            print(self.map.map)
             # print(123)
             if not As.run():
                 return False
@@ -120,6 +117,7 @@ class InferenceSearch(object):
             if index == len(As.trajectory):
                 return True
             start = As.trajectory[index]
+            As.map.map = self.Maze
             As.map.start = start
             As.clear()
 

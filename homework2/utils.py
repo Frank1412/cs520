@@ -28,7 +28,7 @@ def isValid(x, m, n):
 
 def initialize(map):
     m, n = len(map), len(map[0])
-    Maze = np.full([m,n], 2)
+    Maze = np.full([m, n], 2)
     N = np.full((m, n), 8)
     C = np.full([m, n], -10)
     B = np.zeros([m, n])
