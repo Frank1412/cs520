@@ -38,11 +38,7 @@ def getNeighborsOnEdge(x, m, n):
 def update_NoBlock(x, N, visited, Maze, C, B, E, H, m, n):
     visited[x[0]][x[1]] = True
     Maze[x[0]][x[1]] = 0
-    C[x[0]][x[1]] = 0
-    B[x[0]][x[1]] = 0
-    E[x[0]][x[1]] = N[x[0]][x[1]]
     H[x[0]][x[1]] = 0
-    # update information of each neighbor of x
 
     for nei in getNeighborsOnVertex(x, m, n):
         E[nei[0]][nei[1]] = max(E[nei[0]][nei[1]], 3)

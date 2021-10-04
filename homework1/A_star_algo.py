@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import copy
 
-directions = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
 
 def distance(a, b, distanceType, ):
@@ -132,7 +132,7 @@ class AStar(object):
                 return g + 0.5 * (h + 2 * h2)
 
     def clear(self):
-        self.visited = set()
+        self.visited.clear()
         self.fringe = PriorityQueue(self.map.m * self.map.n / 2)
         self.path = {}
         self.cells = []
@@ -143,6 +143,7 @@ class AStar(object):
         """
         :return: is the maze is solvable
         """
+        print(self.visited)
         start = self.map.start  # getStartPoint()
         self.visited.add(start)
         self.cost[start] = 0
