@@ -1,7 +1,8 @@
 # encoding=utf-8
-
+import sys
+sys.path.append("..")
 from utils import *
-from cs520.homework1.A_star_algo import *
+from homework1.A_star_algo import *
 from shen import *
 
 
