@@ -9,7 +9,7 @@ directions = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -
 def sense(x, Map, m, n):
     blocks = 0
     for (i, j) in getAllNeighbors(x, m, n):
-        if Map[i][i] == 1:
+        if Map[i][j] == 1:
             blocks += 1
     return blocks
 
@@ -17,7 +17,7 @@ def sense(x, Map, m, n):
 def countB(x, Maze, m, n, target):
     nums = 0
     for (i, j) in getAllNeighbors(x, m, n):
-        if Maze[i][i] == target:
+        if Maze[i][j] == target:
             nums += 1
     return nums
 
@@ -38,7 +38,7 @@ def initialize(map):
     m, n = len(map), len(map[0])
     Maze = np.full([m, n], 2)
     N = np.full((m, n), 8)
-    C = np.full([m, n], -10)
+    C = np.zeros([m, n])
     B = np.zeros([m, n])
     E = np.zeros([m, n])
     for i in range(m):
