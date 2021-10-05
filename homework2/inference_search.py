@@ -24,59 +24,40 @@ class InferenceSearch(object):
         for i, j in getAllNeighbors(x, self.m, self.n):
             self.B[i][j] += 1
             self.H[i][j] -= 1
+            self.updateCurrent((i, j))
 
-    def update_NoBlock_Sense(self, x):
-        if self.C[x[0]][x[1]] == 0:
-            for i, j in getAllNeighbors(x, self.m, self.n):
-                self.E[i][j] += 1
-                self.H[i][j] -= 1
-                if self.Maze[i][j] == 2:
-                    self.Maze[i][j] = 0
-                    for nei in getAllNeighbors((i, j), self.m, self.n):
-                        self.E[nei[0]][nei[1]] += 1
-                        self.H[nei[0]][nei[1]] -= 1
-            return
+    def empty_update(self, x):
         for i, j in getAllNeighbors(x, self.m, self.n):
             self.E[i][j] += 1
             self.H[i][j] -= 1
-
-    def update_NoBlock_NoSense(self, x):
-        if self.C[x[0]][x[1]] == 0:
-            neighborsOfX = getAllNeighbors(x, self.m, self.n)
-            for i, j in neighborsOfX:
-                if self.Maze[i][j] == 2:
-                    self.Maze[i][j] = 0
-                    for nei in getAllNeighbors((i, j), self.m, self.n):
-                        self.E[nei[0]][nei[1]] += 1
-                        self.H[nei[0]][nei[1]] -= 1
+            self.updateCurrent((i, j))
 
     def updateMaze(self, x, pivot):
         if pivot == 1:  # C=B
+            nums = countB(x, self.Maze, self.m, self.n, pivot)
+            if nums != self.B[x[0]][x[1]]:
+                print("error", nums, self.B[x[0]][x[1]])
+                return
             for i, j in getAllNeighbors(x, self.m, self.n):
                 if self.Maze[i][j] == 2:
-                    # self.visited.add((i, j))
                     self.Maze[i][j] = 0
                     for nei in getAllNeighbors((i, j), self.m, self.n):
-                        # if nei != x and self.Maze[nei[0]][nei[1]] == 2:
                         self.E[nei[0]][nei[1]] += 1
                         self.H[nei[0]][nei[1]] -= 1
+                        self.updateCurrent(nei)
 
         elif pivot == 0:  # N-C=E
+            nums = countB(x, self.Maze, self.m, self.n, pivot)
+            if nums != self.E[x[0]][x[1]]:
+                print("error", nums)
+                return
             for i, j in getAllNeighbors(x, self.m, self.n):
                 if self.Maze[i][j] == 2:
-                    # self.visited.add((i, j))
                     self.Maze[i][j] = 1
                     for nei in getAllNeighbors((i, j), self.m, self.n):
-                        # if nei != x and self.Maze[nei[0]][nei[1]] == 2:
                         self.B[nei[0]][nei[1]] += 1
                         self.H[nei[0]][nei[1]] -= 1
-
-    def updateByH_0(self, x):
-        for i, j in getAllNeighbors(x, self.m, self.n):
-            for nei in getAllNeighbors((i, j), self.m, self.n):
-                # if nei != x and self.Maze[nei[0]][nei[1]] == 2:
-                self.E[nei[0]][nei[1]] += 1
-                self.H[nei[0]][nei[1]] -= 1
+                        self.updateCurrent(nei)
 
     def updateAllVisited(self, As):
         # for i, j in self.visited:
@@ -87,17 +68,26 @@ class InferenceSearch(object):
                 tmp.add((i, j))
             else:
                 continue
-            if self.H[i][j] == 0:
-                print("H=0", self.N[i][j], self.C[i][j], self.B[i][j], self.E[i][j], self.H[i][j], (i, j))
-                continue
-            if self.C[i][j] == self.B[i][j]:
-                print('C=B', self.N[i][j], self.C[i][j], self.B[i][j], self.E[i][j], self.H[i][j], (i, j))
-                self.updateMaze((i, j), 1)
-                continue
-            if self.N[i][j] - self.C[i][j] == self.E[i][j]:
-                print('N-C=E', self.N[i][j], self.C[i][j], self.B[i][j], self.E[i][j], self.H[i][j], (i, j))
-                self.updateMaze((i, j), 0)
-                continue
+            self.updateCurrent((i, j))
+
+    def updateCurrent(self, x):
+        i, j = x
+        if self.H[i][j] == 0:
+            print("H=0", self.N[i][j], self.C[i][j], self.B[i][j], self.E[i][j], self.H[i][j], (i, j))
+            num1 = countB((i, j), self.Maze, self.m, self.n, 0)
+            num2 = countB((i, j), self.Maze, self.m, self.n, 1)
+            print(num1 + num2, self.N[i][j] - num1 - num2)
+            return
+        if self.C[i][j] == self.B[i][j]:
+            print('C=B', self.N[i][j], self.C[i][j], self.B[i][j], self.E[i][j], self.H[i][j], (i, j))
+            self.updateMaze((i, j), 1)
+            print('after C=B', self.N[i][j], self.C[i][j], self.B[i][j], self.E[i][j], self.H[i][j], (i, j))
+            return
+        if self.N[i][j] - self.C[i][j] == self.E[i][j]:
+            print('N-C=E', self.N[i][j], self.C[i][j], self.B[i][j], self.E[i][j], self.H[i][j], (i, j))
+            self.updateMaze((i, j), 0)
+            print('after N-C=E', self.N[i][j], self.C[i][j], self.B[i][j], self.E[i][j], self.H[i][j], (i, j))
+            return
 
     def inference(self, As):
         print(As.trajectory)
@@ -109,34 +99,18 @@ class InferenceSearch(object):
             if self.map.map[x[0]][x[1]] == 1:
                 self.visited.add(x)
                 if self.Maze[x[0]][x[1]] == 2:
+                    self.Maze[x[0]][x[1]] = 1
                     self.block_update(x)
                 self.Maze[x[0]][x[1]] = 1
                 block, index = x, idx - 1
                 # print(x, index)
                 break
             else:
-                if x in self.visited:
-                    continue
                 if self.Maze[x[0]][x[1]] == 2:
                     self.Maze[x[0]][x[1]] = 0
-                    self.update_NoBlock_Sense(x)
-                else:
-                    self.update_NoBlock_NoSense(x)
+                    self.empty_update(x)
+                self.Maze[x[0]][x[1]] = 0
                 self.visited.add(x)
-                # if x in self.visited:
-                #     continue
-                # self.visited.add(x)
-                # if self.C[x[0]][x[1]] == 0:
-                #     if self.Maze[x[0]][x[1]] == 2:
-                #         self.update_NoBlock_NoSense(x)  # shenchong
-                #     self.E[x[0]][x[1]] = self.N[x[0]][x[1]]
-                #     self.B[x[0]][x[1]] = 0
-                #     self.H[x[0]][x[1]] = 0
-                # else:
-                #     if self.Maze[x[0]][x[1]] == 2:
-                #         self.update_NoBlock_Sense(x)  # zhangxiangnan
-                # self.Maze[x[0]][x[1]] = 0
-            self.updateAllVisited(As)
         # self.updateAllVisited(As)
         return block, index
 

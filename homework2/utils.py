@@ -14,6 +14,14 @@ def sense(x, Map, m, n):
     return blocks
 
 
+def countB(x, Maze, m, n, target):
+    nums = 0
+    for (i, j) in getAllNeighbors(x, m, n):
+        if Maze[i][i] == target:
+            nums += 1
+    return nums
+
+
 def isVertex(x, m, n):
     return (x[0] == 0 and x[1] == 0) or (x[0] == 0 and x[1] == n - 1) or (x[0] == m - 1 and x[1] == 0) or (x[0] == m - 1 and x[1] == n - 1)
 
