@@ -22,20 +22,34 @@ class InferenceSearch(object):
         self.Maze, self.N, self.C, self.B, self.E, self.H = initialize(map.map)
         self.maze.map = self.Maze
         self.P = np.full([self.m, self.n], p)
+        self.p = p
         self.visited = set()
         self.trajectory = []
+
+    def setBlock(self):
+        for i in range(self.m):
+            for j in range(self.n):
+                if self.Maze[i][j]==2 and self.P[i][j] > 0.7:
+                    self.Maze[i][j] = 1
+                    self.updateByStack((i, j))
 
     def block_update(self, x):
         for i, j in getAllNeighbors(x, self.m, self.n):
             self.B[i][j] += 1
             self.H[i][j] -= 1
             self.updateByStack((i, j))
+        for i, j in getAllNeighbors(x, self.m, self.n):
+            if (i,j) not in visited:
+                self.P[i][j] = (self.C[i][j]-self.B[i][j])*1.0/self.H[i][j]
 
     def empty_update(self, x):
         for i, j in getAllNeighbors(x, self.m, self.n):
             self.E[i][j] += 1
             self.H[i][j] -= 1
             self.updateByStack((i, j))
+        for i, j in getAllNeighbors(x, self.m, self.n):
+            if (i,j) not in visited:
+                self.P[i][j] = (self.C[i][j]-self.B[i][j])*1.0/self.H[i][j]
 
     def updateMaze(self, x, pivot):
         if pivot == 1:  # C=B
@@ -112,9 +126,8 @@ class InferenceSearch(object):
                 # print(x, index)
                 break
             else:
-                if self.Maze[x[0]][x[1]] == 2:
-                    self.Maze[x[0]][x[1]] = 0
-                    self.empty_update(x)
+                # if self.Maze[x[0]][x[1]] == 2:
+
                 self.Maze[x[0]][x[1]] = 0
                 self.visited.add(x)
         # self.updateAllVisited(As)
