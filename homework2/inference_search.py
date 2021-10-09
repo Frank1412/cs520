@@ -98,7 +98,6 @@ class InferenceSearch(object):
         # print(As.trajectory)
         block, index = (), len(As.trajectory)
         for idx, x in enumerate(As.trajectory):
-            self.C[x[0]][x[1]] = sense(x, self.map.map, self.m, self.n)
             self.trajectory.append(x)
 
             if self.map.map[x[0]][x[1]] == 1:
@@ -111,6 +110,7 @@ class InferenceSearch(object):
                 # print(x, index)
                 break
             else:
+                self.C[x[0]][x[1]] = sense(x, self.map.map, self.m, self.n)
                 if self.Maze[x[0]][x[1]] == 2:
                     self.Maze[x[0]][x[1]] = 0
                     self.empty_update(x)
