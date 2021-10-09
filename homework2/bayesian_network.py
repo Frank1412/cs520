@@ -13,7 +13,7 @@ sys.setrecursionlimit(10 ** 6)
 
 
 class InferenceSearch(object):
-    def __init__(self, map):
+    def __init__(self, map, p):
         self.map = map
         self.maze = copy.deepcopy(self.map)
         self.m = map.m
@@ -21,6 +21,7 @@ class InferenceSearch(object):
         self.start, self.goal = map.start, map.end
         self.Maze, self.N, self.C, self.B, self.E, self.H = initialize(map.map)
         self.maze.map = self.Maze
+        self.P = np.full([self.m, self.n], p)
         self.visited = set()
         self.trajectory = []
 
@@ -151,10 +152,10 @@ if __name__ == '__main__':
         # print(As.trajectory)
         init = initialize(map.map)
         # print(init[2], map)
-        algo = InferenceSearch(map)
+        algo = InferenceSearch(map, p)
         time1 = time.time()
         print(algo.run())
         time2 = time.time()
-        print(time2-time1)
+        print(time2 - time1)
         del algo
         gc.collect()

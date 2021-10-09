@@ -38,12 +38,12 @@ def initialize(map):
     m, n = len(map), len(map[0])
     Maze = np.full([m, n], 2)
     N = np.full((m, n), 8)
-    C = np.zeros([m, n])
+    C = np.full([m, n], -10)
     B = np.zeros([m, n])
     E = np.zeros([m, n])
     for i in range(m):
         for j in range(n):
-            C[i][j] = sense((i, j), map, m, n)
+            # C[i][j] = sense((i, j), map, m, n)
             if isVertex((i, j), m, n):
                 N[i][j] = 3
             elif isBorder((i, j), m, n):
@@ -51,6 +51,11 @@ def initialize(map):
     H = copy.deepcopy(N)
     # H = np.full([m, n], -1)
     return Maze, N, C, B, E, H
+
+
+def initialize_P(m, n, p):
+    P = np.full([m, n], p)
+    return P
 
 
 def getAllNeighbors(x, m, n):
