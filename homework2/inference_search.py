@@ -62,26 +62,26 @@ class InferenceSearch(object):
     def trick121(self):
         length = len(self.trajectory)
         for i in range(1, length - 1):
-            if self.H[self.trajectory[i][0]][self.trajectory[i][1]] != 0:
-                lst = [self.trajectory[i - 1], self.trajectory[i], self.trajectory[i + 1]]
-                if self.Maze[lst[0][0]][lst[0][1]] == 1 or self.Maze[lst[1][0]][lst[1][1]] == 1 or self.Maze[lst[2][0]][lst[2][1]] == 1:
-                    continue
+            lst = [self.trajectory[i - 1], self.trajectory[i], self.trajectory[i + 1]]
+            if self.Maze[lst[0][0]][lst[0][1]] == 1 or self.Maze[lst[1][0]][lst[1][1]] == 1 or self.Maze[lst[2][0]][lst[2][1]] == 1:
+                continue
+            if self.H[lst[0][0]][lst[0][1]] != 0 and self.H[lst[1][0]][lst[1][1]] != 0 and self.H[lst[2][0]][lst[2][1]] != 0:
                 if len(set(lst)) == 3:
                     pre, cur, next = lst[0], lst[1], lst[2]
-
-                    if self.C[pre[0]][pre[1]] == 1 and self.C[cur[0]][cur[1]] == 2 and self.C[next[0]][next[1]] == 1:
-                        if lst[0][1] == lst[2][1]:
-                            if cur[0]-1 >= 0 and self.Maze[cur[0] - 1][cur[1]] != 2:
+                    if self.C[pre[0]][pre[1]]-self.B[pre[0]][pre[1]] == 1 and self.C[cur[0]][cur[1]]-self.B[cur[0]][cur[1]] == 2 and self.C[next[0]][next[1]]-self.B[next[0]][next[1]] == 1:
+                    # if self.C[pre[0]][pre[1]] and self.C[cur[0]][cur[1]] == 2 and self.C[next[0]][next[1]] == 1:
+                        if pre[0] == next[0]:
+                            if cur[0]-1 >= 0 and self.Maze[cur[0] - 1][cur[1]] == 2:
                                 self.Maze[cur[0] - 1][cur[1]] = 0
                                 self.updateByBFS((cur[0] - 1, cur[1]))
-                            if cur[0]+1 < self.m and self.Maze[cur[0] + 1][cur[1]] != 2:
+                            if cur[0]+1 < self.m and self.Maze[cur[0] + 1][cur[1]] == 2:
                                 self.Maze[cur[0] + 1][cur[1]] = 0
                                 self.updateByBFS((cur[0] + 1, cur[1]))
-                        if lst[0][0] == lst[2][0]:
-                            if cur[1]-1 >= 0 and self.Maze[cur[0]][cur[1]-1] != 2:
+                        if pre[1] == next[1]:
+                            if cur[1]-1 >= 0 and self.Maze[cur[0]][cur[1]-1] == 2:
                                 self.Maze[cur[0]][cur[1]-1] = 0
                                 self.updateByBFS((cur[0], cur[1]-1))
-                            if cur[1]-1 < self.n and self.Maze[cur[0]][cur[1]+1] != 2:
+                            if cur[1]+1 < self.n and self.Maze[cur[0]][cur[1]+1] == 2:
                                 self.Maze[cur[0]][cur[1]+1] = 0
                                 self.updateByBFS((cur[0], cur[1]+1))
 
@@ -119,7 +119,7 @@ class InferenceSearch(object):
             # print(block)
             if index == len(As.trajectory):
                 # print(self.map.map)
-                print(self.Maze)
+                # print(self.Maze)
                 return True
             start = As.trajectory[index]
             As.map.start = start
@@ -127,8 +127,8 @@ class InferenceSearch(object):
 
 
 if __name__ == '__main__':
-    p = 0.2
-    for i in range(10):
+    p = 0.3
+    for i in range(50):
         map = Map(100, 100)
         map.setObstacles(True, p)
         As = AStar(map, 1)
@@ -151,5 +151,6 @@ if __name__ == '__main__':
         print(time2 - time1)
         hasTrick.run(True)
         print(sum(sum(hasTrick.Maze == algo.Maze)))
+        print(len(algo.trajectory), len(hasTrick.trajectory))
         # del algo
         # gc.collect()
