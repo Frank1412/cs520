@@ -26,94 +26,61 @@ class InferenceSearch(object):
         self.visited = set()
         self.trajectory = []
 
-    def setBlock(self):
-        for i in range(self.m):
-            for j in range(self.n):
-                if self.Maze[i][j]==2 and self.P[i][j] > 0.7:
-                    self.Maze[i][j] = 1
-                    self.updateByStack((i, j))
+    # def setBlock(self):
+    #     for i in range(self.m):
+    #         for j in range(self.n):
+    #             if self.Maze[i][j]==2 and self.P[i][j] > 0.6:
+    #                 self.Maze[i][j] = 1
 
     def block_update(self, x):
+        self.updateByBFS(x)
         for i, j in getAllNeighbors(x, self.m, self.n):
-            self.B[i][j] += 1
-            self.H[i][j] -= 1
-            self.updateByStack((i, j))
-        for i, j in getAllNeighbors(x, self.m, self.n):
-            if (i,j) not in visited:
-                self.P[i][j] = (self.C[i][j]-self.B[i][j])*1.0/self.H[i][j]
+            if (i, j) not in self.visited and self.H[i][j] > 1:
+                self.P[i][j] = (self.C[i][j] - self.B[i][j]) * 1.0 / self.H[i][j]
+                if self.P[i][j] > 0.6:
+                    self.Maze[i][j] = 1
 
     def empty_update(self, x):
+        self.updateByBFS(x)
         for i, j in getAllNeighbors(x, self.m, self.n):
-            self.E[i][j] += 1
-            self.H[i][j] -= 1
-            self.updateByStack((i, j))
-        for i, j in getAllNeighbors(x, self.m, self.n):
-            if (i,j) not in visited:
+            if (i,j) not in self.visited and self.H[i][j]>1:
                 self.P[i][j] = (self.C[i][j]-self.B[i][j])*1.0/self.H[i][j]
-
-    def updateMaze(self, x, pivot):
-        if pivot == 1:  # C=B
-            for i, j in getAllNeighbors(x, self.m, self.n):
-                if self.Maze[i][j] == 2:
-                    self.Maze[i][j] = 0
-                    for nei in getAllNeighbors((i, j), self.m, self.n):
-                        self.E[nei[0]][nei[1]] += 1
-                        self.H[nei[0]][nei[1]] -= 1
-                        self.updateByStack(nei)
-
-        elif pivot == 0:  # N-C=E
-            for i, j in getAllNeighbors(x, self.m, self.n):
-                if self.Maze[i][j] == 2:
+                if self.P[i][j] > 0.6:
                     self.Maze[i][j] = 1
-                    for nei in getAllNeighbors((i, j), self.m, self.n):
-                        self.B[nei[0]][nei[1]] += 1
-                        self.H[nei[0]][nei[1]] -= 1
-                        self.updateByStack(nei)
 
-    def updateCurrent(self, x):
-        i, j = x
-        if self.H[i][j] == 0:
-            return
-        if self.C[i][j] == self.B[i][j]:
-            self.updateMaze((i, j), 1)
-            return
-        if self.N[i][j] - self.C[i][j] == self.E[i][j]:
-            self.updateMaze((i, j), 0)
-            return
 
-    def updateByStack(self, x):
-        Enodes = []
-        if self.H[x[0]][x[1]] == 0:
-            return
-        node = x
-        sublist = []
+    def updateByBFS(self, x):
+        Enodes = [x]
         while len(Enodes) > 0:
-            for i, j in getAllNeighbors(node, self.m, self.n):
-                if self.Maze[i][j] == 2:
-                    self.Maze[i][j] = 0
-                    neilist = getAllNeighbors((i, j), self.m, self.n)
-                    for t in range(len(neilist) - 1, -1, -1):
-                        if self.H[node[0]][node[1]] == 0:
-                            continue
-                        Enodes.append(neilist[t])
-                        if self.C[node[0]][node[1]] == self.B[node[0]][node[1]]:
-                            sublist.append(0)
-                            continue
-                        if self.N[node[0]][node[1]] - self.C[node[0]][node[1]] == self.E[node[0]][node[1]]:
-                            sublist.append(1)
-            node = Enodes.pop()
-            types = sublist.pop()
-            if types == 0:
-                self.E[node[0]][node[1]] += 1
-            else:
-                self.B[node[0]][node[1]] += 1
-            self.H[node[0]][node[1]] -= 1
+            cur = Enodes.pop()
+            type = self.Maze[cur[0]][cur[1]]
+            for i, j in getAllNeighbors(cur, self.m, self.n):
+                if type == 1:
+                    self.B[i][j] += 1
+                    self.H[i][j] -= 1
+                if type == 0:
+                    self.E[i][j] += 1
+                    self.H[i][j] -= 1
+            if self.H[cur[0]][cur[1]] == 0:
+                continue
+            if self.C[cur[0]][cur[1]] == self.B[cur[0]][cur[1]]:
+                for i, j in getAllNeighbors(cur, self.m, self.n):
+                    if self.Maze[i][j] == 2:
+                        self.Maze[i][j] = 0
+                        Enodes.append((i, j))
+                continue
+            if self.N[cur[0]][cur[1]] - self.C[cur[0]][cur[1]] == self.E[cur[0]][cur[1]]:
+                for i, j in getAllNeighbors(cur, self.m, self.n):
+                    if self.Maze[i][j] == 2:
+                        self.Maze[i][j] = 1
+                        Enodes.append((i, j))
+                continue
+        return
 
     def inference(self, As):
         # print(As.trajectory)
         block, index = (), len(As.trajectory)
         for idx, x in enumerate(As.trajectory):
-            self.C[x[0]][x[1]] = sense(x, self.map.map, self.m, self.n)
             self.trajectory.append(x)
 
             if self.map.map[x[0]][x[1]] == 1:
@@ -121,14 +88,14 @@ class InferenceSearch(object):
                 if self.Maze[x[0]][x[1]] == 2:
                     self.Maze[x[0]][x[1]] = 1
                     self.block_update(x)
-                self.Maze[x[0]][x[1]] = 1
                 block, index = x, idx - 1
                 # print(x, index)
                 break
             else:
-                # if self.Maze[x[0]][x[1]] == 2:
-
-                self.Maze[x[0]][x[1]] = 0
+                self.C[x[0]][x[1]] = sense(x, self.map.map, self.m, self.n)
+                if self.Maze[x[0]][x[1]] == 2:
+                    self.Maze[x[0]][x[1]] = 0
+                    self.empty_update(x)
                 self.visited.add(x)
         # self.updateAllVisited(As)
         return block, index
@@ -151,6 +118,7 @@ class InferenceSearch(object):
 
 if __name__ == '__main__':
     p = 0.3
+    algo = None
     for i in range(10):
         map = Map(101, 101)
         map.setObstacles(True, p)
@@ -170,5 +138,5 @@ if __name__ == '__main__':
         print(algo.run())
         time2 = time.time()
         print(time2 - time1)
-        del algo
-        gc.collect()
+        # del algo
+        # gc.collect()

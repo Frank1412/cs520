@@ -7,7 +7,7 @@ import copy
 from inference_search import *
 
 if __name__ == "__main__":
-    test_num = 1   # 50
+    test_num = 2   # 50
     p_list = np.linspace(0, 0.33, 10)   # 0, 0.33, 34
     ATL_list = []   # Average Trajectory Length
     ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld

@@ -14,6 +14,7 @@ sys.setrecursionlimit(10 ** 6)
 
 class InferenceSearch(object):
     def __init__(self, map):
+        self.trick = False
         self.map = map
         self.maze = copy.deepcopy(self.map)
         self.m = map.m
@@ -29,17 +30,6 @@ class InferenceSearch(object):
 
     def empty_update(self, x):
         self.updateByBFS(x)
-
-    def updateCurrent(self, x):
-        i, j = x
-        if self.H[i][j] == 0:
-            return
-        if self.C[i][j] == self.B[i][j]:
-            self.updateMaze((i, j), 1)
-            return
-        if self.N[i][j] - self.C[i][j] == self.E[i][j]:
-            self.updateMaze((i, j), 0)
-            return
 
     def updateByBFS(self, x):
         Enodes = [x]
@@ -69,6 +59,32 @@ class InferenceSearch(object):
                 continue
         return
 
+    def trick121(self):
+        length = len(self.trajectory)
+        for i in range(1, length - 1):
+            if self.H[self.trajectory[i][0]][self.trajectory[i][1]] != 0:
+                lst = [self.trajectory[i - 1], self.trajectory[i], self.trajectory[i + 1]]
+                if self.Maze[lst[0][0]][lst[0][1]] == 1 or self.Maze[lst[1][0]][lst[1][1]] == 1 or self.Maze[lst[2][0]][lst[2][1]] == 1:
+                    continue
+                if len(set(lst)) == 3:
+                    pre, cur, next = lst[0], lst[1], lst[2]
+
+                    if self.C[pre[0]][pre[1]] == 1 and self.C[cur[0]][cur[1]] == 2 and self.C[next[0]][next[1]] == 1:
+                        if lst[0][1] == lst[2][1]:
+                            if cur[0]-1 >= 0 and self.Maze[cur[0] - 1][cur[1]] != 2:
+                                self.Maze[cur[0] - 1][cur[1]] = 0
+                                self.updateByBFS((cur[0] - 1, cur[1]))
+                            if cur[0]+1 < self.m and self.Maze[cur[0] + 1][cur[1]] != 2:
+                                self.Maze[cur[0] + 1][cur[1]] = 0
+                                self.updateByBFS((cur[0] + 1, cur[1]))
+                        if lst[0][0] == lst[2][0]:
+                            if cur[1]-1 >= 0 and self.Maze[cur[0]][cur[1]-1] != 2:
+                                self.Maze[cur[0]][cur[1]-1] = 0
+                                self.updateByBFS((cur[0], cur[1]-1))
+                            if cur[1]-1 < self.n and self.Maze[cur[0]][cur[1]+1] != 2:
+                                self.Maze[cur[0]][cur[1]+1] = 0
+                                self.updateByBFS((cur[0], cur[1]+1))
+
     def inference(self, As):
         # print(As.trajectory)
         block, index = (), len(As.trajectory)
@@ -89,10 +105,12 @@ class InferenceSearch(object):
                     self.Maze[x[0]][x[1]] = 0
                     self.empty_update(x)
                 self.visited.add(x)
-        # self.updateAllVisited(As)
+        if self.trick:
+            self.trick121()
         return block, index
 
-    def run(self):
+    def run(self, trick=False):
+        self.trick = trick
         As = AStar(self.maze, 1)
         while True:
             if not As.run():
@@ -100,8 +118,8 @@ class InferenceSearch(object):
             block, index = self.inference(As)
             # print(block)
             if index == len(As.trajectory):
-                print(self.map.map)
-                print(As.map.map)
+                # print(self.map.map)
+                print(self.Maze)
                 return True
             start = As.trajectory[index]
             As.map.start = start
@@ -109,9 +127,9 @@ class InferenceSearch(object):
 
 
 if __name__ == '__main__':
-    p = 0.3
+    p = 0.2
     for i in range(10):
-        map = Map(10, 10)
+        map = Map(100, 100)
         map.setObstacles(True, p)
         As = AStar(map, 1)
         while True:
@@ -125,9 +143,13 @@ if __name__ == '__main__':
         init = initialize(map.map)
         # print(init[2], map)
         algo = InferenceSearch(map)
+        hasTrick = InferenceSearch(copy.deepcopy(map))
         time1 = time.time()
-        print(algo.run())
+        # print(algo.run())
+        algo.run()
         time2 = time.time()
         print(time2 - time1)
-        del algo
-        gc.collect()
+        hasTrick.run(True)
+        print(sum(sum(hasTrick.Maze == algo.Maze)))
+        # del algo
+        # gc.collect()
