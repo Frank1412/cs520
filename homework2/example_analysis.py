@@ -48,6 +48,10 @@ if __name__ == "__main__":
             time3 = time.time()
             example_al.run()
             time4 = time.time()
+            own_inference = InferenceSearch(copy.deepcopy(map))
+            time5 = time.time()
+            own_inference.run(trick=True)
+            time6 = time.time()
             print(time2-time1, time4-time3)
             # average length
             ATL += len(algo.trajectory)
