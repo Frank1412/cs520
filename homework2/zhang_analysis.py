@@ -7,7 +7,7 @@ import copy
 from inference_search import *
 
 if __name__ == "__main__":
-    test_num = 3   # 50
+    test_num = 50   # 50
     p_list = np.linspace(0, 0.33, 34)   # 0, 0.33, 34
     ATL_list = []   # Average Trajectory Length
     ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld
@@ -67,20 +67,20 @@ if __name__ == "__main__":
             ANCPR += algo.cells
 
             bump_ATL += len(bump_algo.trajectory)
-            algo.gridWorld.start = (0, 0)   # setStartPoint((0, 0))
-            As_gridWorld = AStar(algo.gridWorld, 1)
+            bump_algo.gridWorld.start = (0, 0)   # setStartPoint((0, 0))
+            As_gridWorld = AStar(bump_algo.gridWorld, 1)
             As_gridWorld.run()
             bump_ALT_LSPFDG += (len(algo.trajectory)*1.0 / len(As_gridWorld.trajectory))
             bump_ALSPFDG_LSPFG += (len(As_gridWorld.trajectory)*1.0 / len(As.trajectory))
-            bump_ANCPR += algo.cells           
+            bump_ANCPR += bump_algo.cells           
 
             example_ATL += len(example_al.trajectory)
-            algo.gridWorld.start = (0, 0)   # setStartPoint((0, 0))
-            As_gridWorld = AStar(algo.gridWorld, 1)
+            example_al.gridWorld.start = (0, 0)   # setStartPoint((0, 0))
+            As_gridWorld = AStar(example_al.gridWorld, 1)
             As_gridWorld.run()
-            example_ALT_LSPFDG += (len(algo.trajectory)*1.0 / len(As_gridWorld.trajectory))
+            example_ALT_LSPFDG += (len(example_al.trajectory)*1.0 / len(As_gridWorld.trajectory))
             example_ALSPFDG_LSPFG += (len(As_gridWorld.trajectory)*1.0 / len(As.trajectory))
-            example_ANCPR += algo.cells
+            example_ANCPR += example_al.cells
 
 
         ATL_list.append(ATL / test_num)
