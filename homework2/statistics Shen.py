@@ -54,7 +54,12 @@ if __name__ == "__main__":
             example_al.run()
             time2 = time.time()
             # Length of Shortest Path in Final Discovered Gridworld
-            example_final = AStar(example_al.Maze, 1)
+            # example_final = AStar(example_al.Maze, 1)
+            """"""
+            finalMap = copy.deepcopy(map)
+            finalMap.map = copy.deepcopy(example_al.Maze)
+            example_final = AStar(finalMap, 1)
+            """"""
             example_final.run()
             example_ALT_LSPFDG += (len(example_al.trajectory) * 1.0 / len(example_final.trajectory))
             example_ALSPFDG_LSPFG += (len(example_final.trajectory) * 1.0 / len(As.trajectory))
