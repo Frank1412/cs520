@@ -7,7 +7,7 @@ import copy
 from inference_search import *
 
 if __name__ == "__main__":
-    test_num = 1   # 50
+    test_num = 3   # 50
     p_list = np.linspace(0, 0.33, 10)   # 0, 0.33, 34
     ATL_list = []   # Average Trajectory Length
     ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld
@@ -69,7 +69,9 @@ if __name__ == "__main__":
             example_Identified_Cells += sum(sum(example_al.Maze != 2))
 
             example_ALT_LSPFDG += (len(example_al.trajectory) * 1.0 / len(example_final.trajectory))
-            print(len(example_final.trajectory))
+            print(len(example_final.trajectory), p)
+            print(example_final.trajectory[:10])
+
             example_ALSPFDG_LSPFG += (len(example_final.trajectory) * 1.0 / len(As.trajectory))
             timeA += time2 - time1
 
