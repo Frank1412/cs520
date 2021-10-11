@@ -145,6 +145,3 @@ if __name__ == "__main__":
     plt.ylabel("Runtime")
     plt.legend()
     plt.show()
-
-
-  
