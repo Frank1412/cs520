@@ -7,7 +7,7 @@ import copy
 from inference_search import *
 
 if __name__ == "__main__":
-    test_num = 50   # 50
+    test_num = 5   # 50
     p_list = np.linspace(0, 0.33, 34)   # 0, 0.33, 34
     ATL_list = []   # Average Trajectory Length
     ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld
@@ -70,17 +70,17 @@ if __name__ == "__main__":
             bump_algo.gridWorld.start = (0, 0)   # setStartPoint((0, 0))
             As_gridWorld = AStar(bump_algo.gridWorld, 1)
             As_gridWorld.run()
-            bump_ALT_LSPFDG += (len(algo.trajectory)*1.0 / len(As_gridWorld.trajectory))
+            bump_ALT_LSPFDG += (len(bump_algo.trajectory)*1.0 / len(As_gridWorld.trajectory))
             bump_ALSPFDG_LSPFG += (len(As_gridWorld.trajectory)*1.0 / len(As.trajectory))
             bump_ANCPR += bump_algo.cells           
 
             example_ATL += len(example_al.trajectory)
-            example_al.gridWorld.start = (0, 0)   # setStartPoint((0, 0))
-            As_gridWorld = AStar(example_al.gridWorld, 1)
+            example_al.start = (0, 0)   # setStartPoint((0, 0))
+            As_gridWorld = AStar(example_al.map, 1)
             As_gridWorld.run()
             example_ALT_LSPFDG += (len(example_al.trajectory)*1.0 / len(As_gridWorld.trajectory))
             example_ALSPFDG_LSPFG += (len(As_gridWorld.trajectory)*1.0 / len(As.trajectory))
-            example_ANCPR += example_al.cells
+            #example_ANCPR += example_al.cells
 
 
         ATL_list.append(ATL / test_num)
@@ -97,7 +97,7 @@ if __name__ == "__main__":
         example_ATL_list.append(example_ATL / test_num)
         example_ALT_LSPFDG_list.append(ALT_LSPFDG / test_num)
         example_ALSPFDG_LSPFG_list.append(ALSPFDG_LSPFG / test_num)
-        example_ANCPR_list.append(ANCPR / test_num) 
+        #example_ANCPR_list.append(ANCPR / test_num) 
 
         timeFirst.append(timeA / test_num)
         timeSecond.append(timeB / test_num)
@@ -128,13 +128,13 @@ if __name__ == "__main__":
     plt.ylabel("Length of Shortest Path in Final Discovered Gridworld / Length of Shortest Path in Full Gridworld")
     plt.show()
 
-    plt.plot(p_list, ANCPR_list)
-    plt.plot(p_list, bump_ANCPR_list, color="red")
-    plt.plot(p_list, example_ANCPR_list, color="green")
-    plt.legend(['original', 'bump into the cell', "example inference"])
-    plt.xlabel('density')
-    plt.ylabel('Average Number of Cells Processed by Repeated A*')
-    plt.show()
+    # plt.plot(p_list, ANCPR_list)
+    # plt.plot(p_list, bump_ANCPR_list, color="red")
+    # plt.plot(p_list, example_ANCPR_list, color="green")
+    # plt.legend(['original', 'bump into the cell', "example inference"])
+    # plt.xlabel('density')
+    # plt.ylabel('Average Number of Cells Processed by Repeated A*')
+    # plt.show()
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -145,3 +145,6 @@ if __name__ == "__main__":
     plt.ylabel("Runtime")
     plt.legend()
     plt.show()
+
+
+  
