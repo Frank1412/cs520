@@ -7,7 +7,7 @@ import copy
 from inference_search import *
 
 if __name__ == "__main__":
-    test_num = 50   # 50
+    test_num = 1   # 50
     p_list = np.linspace(0, 0.33, 34)   # 0, 0.33, 34
     ATL_list = []   # Average Trajectory Length
     ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld
@@ -21,15 +21,20 @@ if __name__ == "__main__":
     example_ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld
     example_ALSPFDG_LSPFG_list = []  # Length of Shortest Path in Final Discovered Gridworld / Length of Shortest Path in Full Gridworld
     example_ANCPR_list = []
+    yourOwn_ATL_list = []
+    yourOwn_ALT_LSPFDG_list = []
+    yourOwn_ALSPFDG_LSPFG_list = []
+    yourOwn_ANCPR_list = []
     timeFirst = []
     timeSecond = []
-    timeThird = []
+
 
 
     for p in p_list:
         ATL, ALT_LSPFDG, ALSPFDG_LSPFG, ANCPR = 0, 0, 0, 0
         bump_ATL, bump_ALT_LSPFDG, bump_ALSPFDG_LSPFG, bump_ANCPR = 0, 0, 0, 0
         example_ATL, example_ALT_LSPFDG, example_ALSPFDG_LSPFG, example_ANCPR = 0, 0, 0, 0
+        yourOwn_ATL,yourOwn_ALT_LSPFDG,yourOwn_ALSPFDG_LSPFG,yourOwn_ANCPR = 0,0,0,0
         timeA, timeB, timeC = 0,0,0
         for _ in range(test_num):
             r1 = False
@@ -43,40 +48,52 @@ if __name__ == "__main__":
                     As = AStar(map, 1)
                 else:
                     break
+
             time1 = time.time()
-            algo = RepeatedAStar(map, 1)
-            algo.run(bumpInto=False)
-            time2 = time.time()
-            timeA += time2 - time1
-            time3 = time.time()
-            bump_algo = RepeatedAStar(copy.deepcopy(map), 1)
-            bump_algo.run(bumpInto=True)
-            time4 = time.time()
-            timeB += time4 - time3
-            time5 = time.time()
             example_al = InferenceSearch(copy.deepcopy(map))
             example_al.run()
-            time6 = time.time()
-            timeC += time6 - time5
-            # average length
-            ATL += len(algo.trajectory)
-            bump_ATL += len(bump_algo.trajectory)
-            example_ATL += len(example_al.trajectory)
+            time2 = time.time()
+            # Length of Shortest Path in Final Discovered Gridworld
+            example_final = AStar(example_al.Maze, 1)
+            example_final.run()
+            example_ALT_LSPFDG += (len(example_al.trajectory) * 1.0 / len(example_final.trajectory))
+            example_ALSPFDG_LSPFG += (len(example_final.trajectory) * 1.0 / len(As.trajectory))
+            timeA += time2 - time1
 
-        ATL_list.append(ATL / test_num)
-        # bump into
-        bump_ATL_list.append(bump_ATL / test_num)
+            own_inference = InferenceSearch(copy.deepcopy(map))
+            time3 = time.time()
+            own_inference.run(trick=True)
+            time4 = time.time()
+            timeB += time4-time3
+            # Length of Shortest Path in Final Discovered Gridworld
+            yourOwn_final =  AStar(own_inference.Maze,1)
+            yourOwn_final.run()
+            yourOwn_ALT_LSPFDG+=(len(own_inference.trajectory)*1.0/len(yourOwn_final.trajectory))
+            yourOwn_ALSPFDG_LSPFG += (len(yourOwn_final.trajectory)*1.0/len(As.trajectory))
+
+
+
+
+
+            # average length
+
+            example_ATL += len(example_al.trajectory)
+            yourOwn_ATL += len(own_inference.trajectory)
+
+
+
 
         # example
         example_ATL_list.append(example_ATL / test_num)
         timeFirst.append(timeA / test_num)
         timeSecond.append(timeB / test_num)
-        timeThird.append(timeC / test_num)
 
-    plt.plot(p_list, ATL_list)
-    plt.plot(p_list, bump_ATL_list, color="red")
+
+
+
     plt.plot(p_list, example_ATL_list, color="green")
-    plt.legend(['original', 'bump into the cell', "example inference"])
+    plt.plot(p_list, yourOwn_ATL_list, color="red")
+    plt.legend(["example inference","Own_Inference"])
     plt.xlabel("density")
     plt.ylabel("Average Trajectory Length")
     plt.show()
@@ -85,7 +102,7 @@ if __name__ == "__main__":
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(p_list, timeFirst, 'green', label="original")
     ax.plot(p_list, timeSecond, 'red', label="bump into the cell")
-    ax.plot(p_list, timeThird, 'blue', label="example inference")
+
     plt.xlabel("density")
     plt.ylabel("Runtime")
     plt.legend()
