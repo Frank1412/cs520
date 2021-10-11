@@ -127,7 +127,7 @@ class InferenceSearch(object):
 
 
 if __name__ == '__main__':
-    p = 0.3
+    p = 0.2
     for i in range(50):
         map = Map(100, 100)
         map.setObstacles(True, p)
