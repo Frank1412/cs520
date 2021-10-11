@@ -65,13 +65,21 @@ if __name__ == "__main__":
             example_ALSPFDG_LSPFG += (len(example_final.trajectory) * 1.0 / len(As.trajectory))
             timeA += time2 - time1
 
+
+            
+
             own_inference = InferenceSearch(copy.deepcopy(map))
             time3 = time.time()
             own_inference.run(trick=True)
             time4 = time.time()
             timeB += time4-time3
             # Length of Shortest Path in Final Discovered Gridworld
-            yourOwn_final =  AStar(own_inference.Maze,1)
+
+            # yourOwn_final =  AStar(own_inference.Maze,1)
+            finalMap1 = copy.deepcopy(map)
+            finalMap1.map = copy.deepcopy(own_inference.Maze)
+            yourOwn_final = AStar(finalMap1,1)
+
             yourOwn_final.run()
             yourOwn_ALT_LSPFDG+=(len(own_inference.trajectory)*1.0/len(yourOwn_final.trajectory))
             yourOwn_ALSPFDG_LSPFG += (len(yourOwn_final.trajectory)*1.0/len(As.trajectory))
