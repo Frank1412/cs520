@@ -7,8 +7,8 @@ import copy
 from inference_search import *
 
 if __name__ == "__main__":
-    test_num = 10  # 50
-    p_list = np.linspace(0, 0.33, 10)  # 0, 0.33, 34
+    test_num = 50  # 50
+    p_list = np.linspace(0, 0.33, 11)  # 0, 0.33, 34
     ATL_list = []  # Average Trajectory Length
     ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld
     ALSPFDG_LSPFG_list = []  # Length of Shortest Path in Final Discovered Gridworld / Length of Shortest Path in Full Gridworld
@@ -59,6 +59,7 @@ if __name__ == "__main__":
             """"""
             finalMap = copy.deepcopy(map)
             finalMap.map = copy.deepcopy(example_al.Maze)
+            print(finalMap.map)
             example_final = AStar(finalMap, 1)
             """"""
             example_final.run()
@@ -66,9 +67,7 @@ if __name__ == "__main__":
             example_Identified_Cells += sum(sum(example_al.Maze != 2))
 
             example_ALT_LSPFDG += (len(example_al.trajectory) * 1.0 / len(example_final.trajectory))
-            print(len(example_final.trajectory), p)
-            print(example_final.trajectory[:10])
-
+            # print(len(example_final.trajectory))
             example_ALSPFDG_LSPFG += (len(example_final.trajectory) * 1.0 / len(As.trajectory))
             timeA += time2 - time1
 
@@ -83,11 +82,17 @@ if __name__ == "__main__":
             # yourOwn_final =  AStar(own_inference.Maze,1)
             finalMap1 = copy.deepcopy(map)
             finalMap1.map = copy.deepcopy(own_inference.Maze)
+
             # print(sum(sum(finalMap.map == finalMap1.map)))
             yourOwn_final = AStar(finalMap1, 1)
 
             yourOwn_final.run()
             print(len(yourOwn_final.trajectory))
+
+            yourOwn_final = AStar(finalMap1, 1)
+
+            yourOwn_final.run()
+
             yourOwn_Identified_Cells += sum(sum(own_inference.Maze != 2))
             # print(yourOwn_Identified_Cells)
             yourOwn_ALT_LSPFDG += (len(own_inference.trajectory) * 1.0 / len(yourOwn_final.trajectory))
@@ -109,6 +114,9 @@ if __name__ == "__main__":
         yourOwn_ALT_LSPFDG_list.append(yourOwn_ALT_LSPFDG / test_num)
         yourOwn_ALSPFDG_LSPFG_list.append(yourOwn_ALSPFDG_LSPFG / test_num)
         yourOwn_ANCPR_list.append(yourOwn_ATL / test_num)
+
+        example_Identified_Cells_list.append(example_Identified_Cells / test_num)
+        yourOwn_Identified_Cells_list.append(yourOwn_Identified_Cells / test_num)
 
     # Density vs Average Trajectory Length
     plt.plot(p_list, example_ATL_list, color="green")
@@ -158,5 +166,15 @@ if __name__ == "__main__":
     ax.plot(p_list, timeSecond, 'red', label="Own_Inference")
     plt.xlabel("density")
     plt.ylabel("Runtime")
+    plt.legend()
+    plt.show()
+
+    # number of identified cells
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(p_list, example_Identified_Cells_list, 'green', label="example inference")
+    ax.plot(p_list, yourOwn_Identified_Cells_list, 'red', label="Own_Inference")
+    plt.xlabel("density")
+    plt.ylabel("number of identified cells")
     plt.legend()
     plt.show()
