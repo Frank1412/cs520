@@ -24,6 +24,7 @@ class InferenceSearch(object):
         self.maze.map = self.Maze
         self.visited = set()
         self.trajectory = []
+        self.scanArea = max(self.m, self.n)
 
     def block_update(self, x):
         self.updateByBFS(x)
@@ -35,6 +36,8 @@ class InferenceSearch(object):
         Enodes = [x]
         while len(Enodes) > 0:
             cur = Enodes.pop()
+            if abs(x[0] - cur[0]) >= self.scanArea and abs(x[1] - cur[1]) >= self.scanArea:
+                continue
             type = self.Maze[cur[0]][cur[1]]
             for i, j in getAllNeighbors(cur, self.m, self.n):
                 if type == 1:
@@ -61,6 +64,8 @@ class InferenceSearch(object):
 
     def trick121(self):
         length = len(self.trajectory)
+
+        """121"""
         for i in range(1, length - 1):
             lst = [self.trajectory[i - 1], self.trajectory[i], self.trajectory[i + 1]]
             if self.Maze[lst[0][0]][lst[0][1]] == 1 or self.Maze[lst[1][0]][lst[1][1]] == 1 or self.Maze[lst[2][0]][lst[2][1]] == 1:
@@ -83,6 +88,7 @@ class InferenceSearch(object):
                             if cur[1] + 1 < self.n and self.Maze[cur[0]][cur[1] + 1] == 2:
                                 self.Maze[cur[0]][cur[1] + 1] = 0
                                 self.updateByBFS((cur[0], cur[1] + 1))
+
         """1221"""
         for i in range(length - 3):
             lst = [self.trajectory[i], self.trajectory[i + 1], self.trajectory[i + 2], self.trajectory[i + 3]]
@@ -108,7 +114,7 @@ class InferenceSearch(object):
                         if node1[1] == node2[1] == node3[1] == node4[1]:
                             for i, j in directions:
                                 if i <= 0:
-                                    if node1[0] + i >=0 and 0 <= node1[1] + j < self.n and self.Maze[node1[0] + i][node1[1] + j] == 2:
+                                    if node1[0] + i >= 0 and 0 <= node1[1] + j < self.n and self.Maze[node1[0] + i][node1[1] + j] == 2:
                                         self.Maze[node1[0] + i][node1[1] + j] = 0
                                         self.updateByBFS((node1[0] + i, node1[1] + j))
                             for i, j in directions:
@@ -182,7 +188,7 @@ if __name__ == '__main__':
         time2 = time.time()
         print(time2 - time1)
         hasTrick.run(True)
-        print(sum(sum(algo.Maze==2)), sum(sum(hasTrick.Maze == 2)))
+        print(sum(sum(algo.Maze == 2)), sum(sum(hasTrick.Maze == 2)))
         print(len(algo.trajectory), len(hasTrick.trajectory))
         # del algo
         # gc.collect()

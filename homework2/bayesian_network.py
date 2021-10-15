@@ -37,7 +37,7 @@ class InferenceSearch(object):
         for i, j in getAllNeighbors(x, self.m, self.n):
             if (i, j) not in self.visited and self.H[i][j] > 1:
                 self.P[i][j] = (self.C[i][j] - self.B[i][j]) * 1.0 / self.H[i][j]
-                if self.P[i][j] > 0.6:
+                if self.P[i][j] > 0.7:
                     self.Maze[i][j] = 1
 
     def empty_update(self, x):
@@ -45,9 +45,8 @@ class InferenceSearch(object):
         for i, j in getAllNeighbors(x, self.m, self.n):
             if (i,j) not in self.visited and self.H[i][j]>1:
                 self.P[i][j] = (self.C[i][j]-self.B[i][j])*1.0/self.H[i][j]
-                if self.P[i][j] > 0.6:
+                if self.P[i][j] > 0.7:
                     self.Maze[i][j] = 1
-
 
     def updateByBFS(self, x):
         Enodes = [x]
@@ -137,6 +136,6 @@ if __name__ == '__main__':
         time1 = time.time()
         print(algo.run())
         time2 = time.time()
-        print(time2 - time1)
+        print(len(algo.trajectory))
         # del algo
         # gc.collect()
