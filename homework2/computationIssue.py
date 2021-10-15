@@ -50,59 +50,24 @@ if __name__ == "__main__":
                 else:
                     break
 
-            time1 = time.time()
-            example_al = InferenceSearch(copy.deepcopy(map))
-            example_al.run()
-            time2 = time.time()
-            # Length of Shortest Path in Final Discovered Gridworld
-            # example_final = AStar(example_al.Maze, 1)
-            """"""
-            finalMap = copy.deepcopy(map)
-            finalMap.map = copy.deepcopy(example_al.Maze)
-            print(finalMap.map)
-            example_final = AStar(finalMap, 1)
-            """"""
-            example_final.run()
-
-            example_Identified_Cells += sum(sum(example_al.Maze != 2))
-
-            example_ALT_LSPFDG += (len(example_al.trajectory) * 1.0 / len(example_final.trajectory))
-            # print(len(example_final.trajectory))
-            example_ALSPFDG_LSPFG += (len(example_final.trajectory) * 1.0 / len(As.trajectory))
-            timeA += time2 - time1
-
-            own_inference = InferenceSearch(copy.deepcopy(map))
-            own_inference.scanArea = 2 #3,4
+            own_inference1 = InferenceSearch(copy.deepcopy(map))
+            own_inference1.scanArea = 2
             time3 = time.time()
-            own_inference.run(trick=True)
-            time4 = time.time()
-            timeB += time4 - time3
-            # print(timeB)
-            # Length of Shortest Path in Final Discovered Gridworld
+            own_inference1.run(trick=True)
 
-            # yourOwn_final =  AStar(own_inference.Maze,1)
-            finalMap1 = copy.deepcopy(map)
-            finalMap1.map = copy.deepcopy(own_inference.Maze)
+            own_inference2 = InferenceSearch(copy.deepcopy(map))
+            own_inference2.scanArea = 3
+            time3 = time.time()
+            own_inference2.run(trick=True)
 
-            # print(sum(sum(finalMap.map == finalMap1.map)))
-            yourOwn_final = AStar(finalMap1, 1)
+            own_inference3 = InferenceSearch(copy.deepcopy(map))
+            own_inference3.scanArea = 4
+            time3 = time.time()
+            own_inference3.run(trick=True)
 
-            yourOwn_final.run()
-            print(len(yourOwn_final.trajectory))
-
-            yourOwn_final = AStar(finalMap1, 1)
-
-            yourOwn_final.run()
-
-            yourOwn_Identified_Cells += sum(sum(own_inference.Maze != 2))
-            # print(yourOwn_Identified_Cells)
-            yourOwn_ALT_LSPFDG += (len(own_inference.trajectory) * 1.0 / len(yourOwn_final.trajectory))
-            yourOwn_ALSPFDG_LSPFG += (len(yourOwn_final.trajectory) * 1.0 / len(As.trajectory))
-
-            # average length
-
-            example_ATL += len(example_al.trajectory)
-            yourOwn_ATL += len(own_inference.trajectory)
+            own_inference4 = InferenceSearch(copy.deepcopy(map))
+            time3 = time.time()
+            own_inference4.run(trick=True)
 
         # example
         example_ATL_list.append(example_ATL / test_num)
