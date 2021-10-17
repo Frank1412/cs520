@@ -24,7 +24,7 @@ class InferenceSearch(object):
         self.maze.map = self.Maze
         self.visited = set()
         self.trajectory = []
-        self.scanArea = max(self.m, self.n)
+        self.scanArea = self.m+self.n
 
     def block_update(self, x):
         self.updateByBFS(x)
@@ -36,7 +36,7 @@ class InferenceSearch(object):
         Enodes = [x]
         while len(Enodes) > 0:
             cur = Enodes.pop()
-            if abs(x[0] - cur[0]) >= self.scanArea and abs(x[1] - cur[1]) >= self.scanArea:
+            if abs(x[0] - cur[0]) + abs(x[1] - cur[1]) > self.scanArea:
                 continue
             type = self.Maze[cur[0]][cur[1]]
             for i, j in getAllNeighbors(cur, self.m, self.n):
@@ -166,8 +166,8 @@ class InferenceSearch(object):
 
 if __name__ == '__main__':
     p = 0.2
-    for i in range(50):
-        map = Map(101, 101)
+    for i in range(1):
+        map = Map(10, 10)
         map.setObstacles(True, p)
         As = AStar(map, 1)
         while True:
