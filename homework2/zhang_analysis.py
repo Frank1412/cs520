@@ -7,7 +7,7 @@ import copy
 from inference_search import *
 
 if __name__ == "__main__":
-    test_num = 5   # 50
+    test_num = 50   # 50
     p_list = np.linspace(0, 0.33, 34)   # 0, 0.33, 34
     ATL_list = []   # Average Trajectory Length
     ALT_LSPFDG_list = []  # Length of Trajectory / Length of Shortest Path in Final Discovered Gridworld
@@ -89,14 +89,14 @@ if __name__ == "__main__":
         ANCPR_list.append(ANCPR / test_num)       
         # bump into
         bump_ATL_list.append(bump_ATL / test_num)
-        bump_ALT_LSPFDG_list.append(ALT_LSPFDG / test_num)
-        bump_ALSPFDG_LSPFG_list.append(ALSPFDG_LSPFG / test_num)
+        bump_ALT_LSPFDG_list.append(bump_ALT_LSPFDG / test_num)
+        bump_ALSPFDG_LSPFG_list.append(bump_ALSPFDG_LSPFG / test_num)
         bump_ANCPR_list.append(ANCPR / test_num)
 
         # example
         example_ATL_list.append(example_ATL / test_num)
-        example_ALT_LSPFDG_list.append(ALT_LSPFDG / test_num)
-        example_ALSPFDG_LSPFG_list.append(ALSPFDG_LSPFG / test_num)
+        example_ALT_LSPFDG_list.append(example_ALT_LSPFDG / test_num)
+        example_ALSPFDG_LSPFG_list.append(example_ALSPFDG_LSPFG / test_num)
         #example_ANCPR_list.append(ANCPR / test_num) 
 
         timeFirst.append(timeA / test_num)
