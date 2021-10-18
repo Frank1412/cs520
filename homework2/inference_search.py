@@ -14,7 +14,7 @@ sys.setrecursionlimit(10 ** 6)
 
 class InferenceSearch(object):
     def __init__(self, map):
-        self.trick = False
+        self.trick = False  # False---agent3  True---agent4
         self.map = map
         self.maze = copy.deepcopy(self.map)
         self.m = map.m

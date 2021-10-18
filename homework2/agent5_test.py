@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 import copy
 from inference_search import *
-from bayesian_network import *
+from agent5_implement import *
 
 if __name__ == "__main__":
     test_num = 20  # 50
@@ -59,43 +59,48 @@ if __name__ == "__main__":
             time1 = time.time()
             algo.run(bumpInto=False)
             time2 = time.time()
+            # print(time2-time1)
             timeA += time2 - time1
 
             bump_algo = RepeatedAStar(copy.deepcopy(map), 1)
-            time1 = time.time()
+            time1_2 = time.time()
             bump_algo.run(bumpInto=True)
-            time2 = time.time()
-            timeB += time2 - time1
+            time2_2 = time.time()
+            timeB += time2_2 - time1_2
 
             example_al = InferenceSearch(copy.deepcopy(map))
-            time1 = time.time()
+            time1_3 = time.time()
             example_al.run()
-            time2 = time.time()
-            timeC += time2 - time1
+            time2_3 = time.time()
+            timeC += time2_3 - time1_3
 
             own_inference = InferenceSearch(copy.deepcopy(map))
-            time1 = time.time()
+            time1_4 = time.time()
             own_inference.run(trick=True)
-            time2 = time.time()
-            timeD += time2 - time1
+            time2_4 = time.time()
+            timeD += time2_4 - time1_4
 
             agent_5 = InferProbSearch(map, p)
-            time1 = time.time()
+            time1_5 = time.time()
             agent_5.run()
-            time2 = time.time()
-            timeE += time2 - time1
+            time2_5 = time.time()
+            timeE += time2_5 - time1_5
 
             finalMap1, finalMap2, finalMap3, finalMap4, finalMap5 = [copy.deepcopy(map)] * 5
-            finalMap1.map = copy.deepcopy(example_al.Maze)
+            finalMap1.map = copy.deepcopy(algo.gridWorld.map)
             finalAs1 = AStar(finalMap1, 1)
             finalAs1.run()
-            finalAs2 = AStar(finalMap1, 1)
+            finalMap2.map = copy.deepcopy(bump_algo.gridWorld.map)
+            finalAs2 = AStar(finalMap2, 1)
             finalAs2.run()
-            finalAs3 = AStar(finalMap1, 1)
+            finalMap3.map = copy.deepcopy(example_al.Maze)
+            finalAs3 = AStar(finalMap3, 1)
             finalAs3.run()
-            finalAs4 = AStar(finalMap1, 1)
+            finalMap4.map = copy.deepcopy(own_inference.Maze)
+            finalAs4 = AStar(finalMap4, 1)
             finalAs4.run()
-            finalAs5 = AStar(finalMap1, 1)
+            finalMap5.map = copy.deepcopy(agent_5.Maze)
+            finalAs5 = AStar(finalMap5, 1)
             finalAs5.run()
 
             # Identified_Cells1 += sum(sum(finalMap1.Maze != 2))
@@ -137,6 +142,7 @@ if __name__ == "__main__":
         ALSPFDG_LSPFG_list.append(ALSPFDG_LSPFG / test_num)
         ANCPR_list.append(ANCPR / test_num)
         timeFirst.append(timeA / test_num)
+        print(timeE/test_num)
 
         bump_ATL_list.append(bump_ATL / test_num)
         bump_ALT_LSPFDG_list.append(bump_ALT_LSPFDG / test_num)

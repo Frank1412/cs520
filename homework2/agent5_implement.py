@@ -8,9 +8,7 @@ from shen import *
 import gc
 import time
 
-# from fang import *
-sys.setrecursionlimit(10 ** 6)
-threshold = 0.8
+threshold = 0.7
 
 
 class InferProbSearch(object):
@@ -25,9 +23,8 @@ class InferProbSearch(object):
         self.maze.map = self.Maze
         self.visited = set()
         self.trajectory = []
-        self.scanArea = self.m + self.n
-        self.probMaze = np.full([self.m, self.n], p)
-        self.predMaze = copy.deepcopy(self.Maze)
+        self.probMaze = np.full([self.m, self.n], p)  # probability matrtix
+        self.predMaze = np.full([self.m, self.n], 2)  # prediction matrix
         self.predMap = copy.deepcopy(self.map)
         self.predMap.map = self.predMaze
         self.probSet = set()
@@ -58,8 +55,8 @@ class InferProbSearch(object):
                         self.Maze[i][j] = 0
                         self.predMaze[i][j] = 0
                         self.probMaze[i][j] = 0
-                        if x in self.probSet:
-                            self.probSet.remove(x)
+                        if (i, j) in self.probSet:
+                            self.probSet.remove((i, j))
                         Enodes.append((i, j))
                 continue
             if self.N[cur[0]][cur[1]] - self.C[cur[0]][cur[1]] == self.E[cur[0]][cur[1]]:
@@ -68,8 +65,8 @@ class InferProbSearch(object):
                         self.Maze[i][j] = 1
                         self.predMaze[i][j] = 1
                         self.probMaze[i][j] = 1
-                        if x in self.probSet:
-                            self.probSet.remove(x)
+                        if (i, j) in self.probSet:
+                            self.probSet.remove((i, j))
                         Enodes.append((i, j))
                 continue
         return
@@ -137,17 +134,19 @@ class InferProbSearch(object):
 
     def addProbSet(self, x):
         for i, j in getAllNeighbors(x, self.m, self.n):
-            if self.probMaze[i][j] != 1 and self.probMaze[i][j] != 0 and self.Maze[i][j] != 2:
+            if self.Maze[i][j] == 2 and 0 < self.probMaze[i][j] < 1:
                 self.probSet.add((i, j))
 
     def updateProb(self):
+        # print(self.probSet)
         for node in self.probSet:
             for i, j in getAllNeighbors(node, self.m, self.n):
-                if self.C[i][j] != -10:
-                    self.probMaze[node[0]][node[1]] = max(1.0*self.probMaze[node[0]][node[1]], (self.C[i][j] - self.B[i][j]) * 1.0 / self.H[i][j])
+                if self.C[i][j] != -10 and 0 < self.probMaze[node[0]][node[1]] < 1:
+                    self.probMaze[node[0]][node[1]] = max(self.probMaze[node[0]][node[1]], (self.C[i][j] - self.B[i][j]) * 1.0 / self.H[i][j])
         # if prob > threshold, we believe it is block
         for i, j in self.probSet:
-            if self.probMaze[i][j] >= threshold:
+            if self.probMaze[i][j] > threshold and 0 < self.probMaze[i][j] < 1:
+                # print("fill 11111")
                 self.predMaze[i][j] = 1
 
     def inference(self, As):
@@ -162,6 +161,7 @@ class InferProbSearch(object):
                     self.Maze[x[0]][x[1]] = 1
                     self.block_update(x)
                 block, index = x, idx - 1
+                """update probability matrix and prediction matrix"""
                 self.predMaze[x[0]][x[1]] = 1
                 self.probMaze[x[0]][x[1]] = 1
                 if x in self.probSet:
@@ -188,7 +188,6 @@ class InferProbSearch(object):
         As = AStar(self.predMap, 1)
         while True:
             if not As.run():
-
                 return False
             block, index = self.inference(As)
             # print(block)
@@ -205,7 +204,7 @@ if __name__ == '__main__':
     p = 0.3
     algo = None
     for i in range(20):
-        map = Map(101, 101)
+        map = Map(10, 10)
         map.setObstacles(True, p)
         As = AStar(map, 1)
         while True:
@@ -222,7 +221,7 @@ if __name__ == '__main__':
         time1 = time.time()
         result = algo.run()
         time2 = time.time()
-        print(time2-time1)
+        print(time2 - time1)
         print(len(algo.trajectory))
         # del algo
         # gc.collect()
