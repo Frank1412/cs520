@@ -133,14 +133,24 @@ class ProbAgent(object):
         return
 
 
+def genMaze(m, n, p, start, goal):
+    maze = np.zeros([m, n])
+    for x in range(m):
+        for y in range(n):
+            if p > random.random():
+                maze[x][y] = 1
+    return maze
+
+
 if __name__ == '__main__':
     allMaze = loadMaze("../maps", "density0.3.json")
-    for map in allMaze:
-        agent6 = ProbAgent(map, (100, 100))
+    for map in allMaze[:10]:
+        target = randomInitialize(map.shape[0], map.shape[1], map, True)
+        agent6 = ProbAgent(map, target)
         agent6.start = randomInitialize(agent6.m, agent6.n, map, True)
         agent6.goal = randomInitialize(agent6.m, agent6.n, map, False)
 
-        agent7 = ProbAgent(map, (100, 100))
+        agent7 = ProbAgent(map, target)
         agent7.start = agent6.start
         agent7.goal = agent6.goal
 
@@ -148,15 +158,15 @@ if __name__ == '__main__':
         time1 = time.time()
         agent6.agent6()
         time2 = time.time()
-        print("true")
-        print(len(agent6.trajectory), time2-time1)
+        print("agent6 true")
+        print(len(agent6.trajectory), time2 - time1)
 
         agent7.agentType = 7
         time3 = time.time()
         agent7.agent7()
         time4 = time.time()
-        print("true")
+        print("agent7 true")
 
         print(len(agent7.trajectory), time4 - time3)
-        break
+        # break
     print(len(allMaze))

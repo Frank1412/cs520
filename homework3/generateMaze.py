@@ -51,11 +51,6 @@ def load(m, n):
             alg = AStar(maze, 1)
             alg.start = (0, 0)
             alg.goal = (m-1, n-1)
-            # if alg.run(maze, 1):
-            #     print(True)
-            # else:
-            #     print(maze)
-            #     print("aowergowiefm")
         file.close()
     return
 
