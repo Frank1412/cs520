@@ -57,6 +57,7 @@ def load(m, n):
             #     print(maze)
             #     print("aowergowiefm")
         file.close()
+    return
 
 
 if __name__ == '__main__':
