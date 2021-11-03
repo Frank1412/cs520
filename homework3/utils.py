@@ -5,7 +5,10 @@ import os
 import json
 import random
 import sys
-sys.setrecursionlimit(10 ** 6)
+from generateMaze import NumpyArrayEncoder
+
+sys.setrecursionlimit(10 ** 8)
+
 
 def loadMaze(path, filename):
     file = open(os.path.join(path, filename), "r")
@@ -52,6 +55,39 @@ def maxProbChoices(P, maxProb):
             if P[i][j] == maxProb:
                 res.append((i, j))
     return res
+
+
+def genByNum(m, n, p):
+    maze = np.zeros([m, n])
+    gridList = []
+    for i in range(m):
+        for j in range(n):
+            gridList.append((i, j))
+    count, blocks = 0, round(m * n * p)
+    used = set()
+    while count < blocks:
+        index = random.randint(0, m * n - 1)
+        while True:
+            # print(index)
+            if index not in used:
+                count += 1
+                used.add(index)
+                i, j = gridList[index]
+                seen = np.full([m, n], False)
+                maze[i][j] = 1
+                start = randomInitialize(m, n, maze, True)
+                dfs(start, maze, (m, n), seen)
+                if sum(sum(seen)) == m * n - count:
+                    print(count)
+                    break
+                else:
+                    count -= 1
+                    used.remove(index)
+                    maze[i][j] = 0
+                    index = random.randint(0, m * n - 1)
+            else:
+                index = random.randint(0, m * n - 1)
+    return maze
 
 
 def genMaze(m, n, p):
@@ -102,5 +138,25 @@ def dfs(grid, maze, shape, seen):
 
 
 if __name__ == '__main__':
-    for _ in range(1):
-        maze = genMaze(101, 101, 0.3)
+    m, n, p = 101, 101, 0.3
+    map = np.zeros([m, n])
+
+    maze1 = genByNum(50, 50, 0.3)
+    maze2 = genByNum(50, 51, 0.3)
+    maze3 = genByNum(51, 50, 0.3)
+    maze4 = genByNum(51, 51, 0.3)
+    map[0:50, 0:50] = maze1
+    map[0:50, 50:] = maze2
+    map[50:, 0:50] = maze3
+    map[50:, 50:] = maze4
+    seen = np.full([m, n], False)
+    start = randomInitialize(m, n, map, True)
+    dfs(start, map, (m, n), seen)
+    if sum(sum(seen)) == m * n - round(m * n * p):
+        print(True)
+        d = dict()
+        d["dim101"] = map
+        js = json.dumps(d, cls=NumpyArrayEncoder)
+        f = open(os.path.join("./", "dim101.json"), "w")
+        f.write(js)
+        f.close()
