@@ -172,8 +172,8 @@ class ProbAgent(object):
         return True
 
     def agent7(self):
-        print(self.start, self.goal, self.target)
         self.cur = self.start
+        print(self.start, self.goal, self.target)
         while True:
             self.As = AStar(self.gridWorld, 1)
             self.As.start = self.start
@@ -203,8 +203,8 @@ def genMaze(m, n, p, start, goal):
 
 if __name__ == '__main__':
     # allMaze = loadMaze("../maps", "density0.3.json")
-    n = 5
-    allMaze = loadMaze("./", "dim101.json")
+    n = 1
+    allMaze = loadMaze("./full_connected_maps", "dim101_1.json")
     print(allMaze[0].shape)
     map = allMaze[0]
     timeAgent6, timeAgent7 = 0, 0
@@ -213,18 +213,18 @@ if __name__ == '__main__':
     for _ in range(n):
         target = randomInitialize(map.shape[0], map.shape[1], map, True)
         start = randomInitialize(map.shape[0], map.shape[1], map, True)
-        goal = randomInitialize(map.shape[0], map.shape[1], map, False)
+        # goal = randomInitialize(map.shape[0], map.shape[1], map, False)
         # target = (14, 19)
         # start = (36, 26)
         # goal = (4, 94)
 
         agent6 = ProbAgent(map, target)
         agent6.start = start
-        agent6.goal = goal
+        agent6.goal = randomInitialize(map.shape[0], map.shape[1], map, False)
 
         agent7 = ProbAgent(map, target)
         agent7.start = start
-        agent7.goal = goal
+        agent7.goal = randomInitialize(map.shape[0], map.shape[1], map, False)
 
         agent6.agentType = 6
         time1 = time.time()

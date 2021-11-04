@@ -78,7 +78,7 @@ def genByNum(m, n, p):
                 start = randomInitialize(m, n, maze, True)
                 dfs(start, maze, (m, n), seen)
                 if sum(sum(seen)) == m * n - count:
-                    print(count)
+                    # print(count)
                     break
                 else:
                     count -= 1
@@ -140,23 +140,26 @@ def dfs(grid, maze, shape, seen):
 if __name__ == '__main__':
     m, n, p = 101, 101, 0.3
     map = np.zeros([m, n])
-
-    maze1 = genByNum(50, 50, 0.3)
-    maze2 = genByNum(50, 51, 0.3)
-    maze3 = genByNum(51, 50, 0.3)
-    maze4 = genByNum(51, 51, 0.3)
-    map[0:50, 0:50] = maze1
-    map[0:50, 50:] = maze2
-    map[50:, 0:50] = maze3
-    map[50:, 50:] = maze4
-    seen = np.full([m, n], False)
-    start = randomInitialize(m, n, map, True)
-    dfs(start, map, (m, n), seen)
-    if sum(sum(seen)) == m * n - round(m * n * p):
-        print(True)
-        d = dict()
-        d["dim101"] = map
-        js = json.dumps(d, cls=NumpyArrayEncoder)
-        f = open(os.path.join("./", "dim101.json"), "w")
-        f.write(js)
-        f.close()
+    num = 0
+    for _ in range(50):
+        maze1 = genByNum(50, 50, 0.3)
+        maze2 = genByNum(50, 51, 0.3)
+        maze3 = genByNum(51, 50, 0.3)
+        maze4 = genByNum(51, 51, 0.3)
+        map[0:50, 0:50] = maze1
+        map[0:50, 50:] = maze2
+        map[50:, 0:50] = maze3
+        map[50:, 50:] = maze4
+        seen = np.full([m, n], False)
+        start = randomInitialize(m, n, map, True)
+        dfs(start, map, (m, n), seen)
+        if sum(sum(seen)) == m * n - round(m * n * p):
+            num += 1
+            print(True, num)
+            d = dict()
+            d["dim101"] = map
+            js = json.dumps(d, cls=NumpyArrayEncoder)
+            filenames = "dim101_" + str(num) + ".json"
+            f = open(os.path.join("./full_connected_maps", filenames), "w")
+            f.write(js)
+            f.close()
