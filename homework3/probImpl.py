@@ -230,19 +230,17 @@ if __name__ == '__main__':
         time1 = time.time()
         agent6.agent6()
         time2 = time.time()
-        print("agent6 true, time={time}, trajectory length={tjt}".format(time=time2 - time1, tjt=len(agent6.trajectory)))
+        print("agent6 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time2 - time1, movement=len(agent6.trajectory), examination=agent6.examination, ratio=len(agent6.trajectory)/agent6.examination))
         timeAgent6 += time2 - time1
         tjtAgent6 += len(agent6.trajectory)
-        print(len(agent6.trajectory), time2 - time1)
 
         agent7.agentType = 7
         time3 = time.time()
         agent7.agent7()
         time4 = time.time()
-        print("agent7 true, time={time}, trajectory length={tjt}".format(time=time4 - time3, tjt=len(agent7.trajectory)))
+        print("agent7 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time4 - time3, movement=len(agent7.trajectory), examination=agent7.examination, ratio=len(agent7.trajectory)/agent7.examination))
         timeAgent7 += time4 - time3
         tjtAgent7 += len(agent7.trajectory)
-        print(len(agent7.trajectory), time4 - time3)
         # break
     print("agent6 time={timeAgent6}, trajectory length={len}".format(timeAgent6=timeAgent6 / n, len=tjtAgent6 / n))
     print("agent7 time={timeAgent7}, trajectory length={len}".format(timeAgent7=timeAgent7 / n, len=tjtAgent7 / n))
