@@ -182,7 +182,7 @@ class ProbAgent(object):
                 self.normalizeContainP()
             self.goal = (x, y)
             self.start = self.cur
-            print(self.start, self.goal, self.containP[self.goal[0]][self.goal[1]], self.containP[self.target[0]][self.target[1]])
+            # print(self.start, self.goal, self.containP[self.goal[0]][self.goal[1]], self.containP[self.target[0]][self.target[1]])
         return True
 
     def agent7(self):
@@ -213,7 +213,7 @@ class ProbAgent(object):
                 x, y = self.choiceList[index]
             if norm:
                 self.normalizeContainP()
-                self.normalizeFindingP()
+                # self.normalizeFindingP()
             self.goal = (x, y)
             self.start = self.cur
             print(len(self.choiceList), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
@@ -230,11 +230,11 @@ if __name__ == '__main__':
     tjtAgent6, tjtAgent7 = 0, 0
 
     for _ in range(n):
-        # target = randomInitialize(map.shape[0], map.shape[1], map, True)
-        # start = randomInitialize(map.shape[0], map.shape[1], map, True)
+        target = randomInitialize(map.shape[0], map.shape[1], map, True)
+        start = randomInitialize(map.shape[0], map.shape[1], map, True)
         # goal = randomInitialize(map.shape[0], map.shape[1], map, False)
-        target = (48, 85)
-        start = (17, 96)
+        # target = (90, 86)
+        # start = (56, 0)
         # goal = (4, 94)
 
         terrain = generateTerrain(map.shape[0], map.shape[1])
