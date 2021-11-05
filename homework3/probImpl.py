@@ -6,6 +6,7 @@ from random import random
 from utils import *
 from Astar import AStar
 import time
+import gc
 
 
 class ProbAgent(object):
@@ -28,6 +29,7 @@ class ProbAgent(object):
         self.trajectory = []
         self.agentType = 6
         self.examination = 0
+        self.choiceList = []
         self.As = None
 
     def followPlan(self, trajectory):
@@ -83,13 +85,33 @@ class ProbAgent(object):
             self.gridWorld[i][j] = 0
             return 0
         else:
+            # p = self.containP[i][j]
+            # if self.terrain[i][j] == 0:  # flat
+            #     self.containP[i][j] = 0.2 * p / (1 - 0.8 * p)
+            # elif self.terrain[i][j] == 1:  # hilly
+            #     self.containP[i][j] = 0.5 * p / (1 - 0.5 * p)
+            # else:  # forest
+            #     self.containP[i][j] = 0.8 * p / (1 - 0.2 * p)
+
             p = self.containP[i][j]
             if self.terrain[i][j] == 0:  # flat
                 self.containP[i][j] = 0.2 * p / (1 - 0.8 * p)
-            elif self.terrain[i][j] == 1:  # hilly
+                for x in range(self.m):
+                    for y in range(self.n):
+                        if (x, y) != grid:
+                            self.containP[x][y] = self.containP[x][y] / (1 - 0.8 * p)
+            if self.terrain[i][j] == 1:  # hilly
                 self.containP[i][j] = 0.5 * p / (1 - 0.5 * p)
-            else:  # forest
+                for x in range(self.m):
+                    for y in range(self.n):
+                        if (x, y) != grid:
+                            self.containP[x][y] = self.containP[x][y] / (1 - 0.5 * p)
+            if self.terrain[i][j] == 2:  # forest
                 self.containP[i][j] = 0.8 * p / (1 - 0.2 * p)
+                for x in range(self.m):
+                    for y in range(self.n):
+                        if (x, y) != grid:
+                            self.containP[x][y] = self.containP[x][y] / (1 - 0.2 * p)
             return 2
 
     def passNoExamine(self, grid):
@@ -108,18 +130,6 @@ class ProbAgent(object):
             #     self.updateFindingP(grid)
         return 2
 
-    def blockUpdate(self, grid, p):
-        for i in range(self.m):
-            for j in range(self.n):
-                if (i, j) != grid:
-                    self.containP[i][j] = self.containP[i][j] / p
-
-    def updateNoExamineIJ(self, grid, p):
-        for i in range(self.m):
-            for j in range(self.n):
-                if (i, j) != grid:
-                    self.containP[i][j] = self.containP[i][j] / p
-
     def normalizeContainP(self):
         total = sum(sum(self.containP))
         self.containP = self.containP / total
@@ -129,20 +139,12 @@ class ProbAgent(object):
         self.findingP = self.findingP / total2
 
     def updateFindingP(self, grid):
-        # i, j = grid
-        # if self.terrain[i][j] == 0:  # flat
-        #     self.findingP[i][j] = 0.8 * self.containP[i][j]
-        # elif self.terrain[i][j] == 1:  # hilly
-        #     self.findingP[i][j] = 0.5 * self.containP[i][j]
-        # else:  # forest
-        #     self.findingP[i][j] = 0.2 * self.containP[i][j]
-
         for x in range(self.m):
             for y in range(self.n):
+                p = self.containP[x][y]
                 if self.gridWorld[x][y] == 2:
-                    self.findingP[x][y] = self.containP[x][y] * 0.5
+                    self.findingP[x][y] = p * 0.5
                 else:
-                    p = self.containP[x][y]
                     if self.terrain[x][y] == 0:  # flat
                         self.findingP[x][y] = 0.8 * p
                     elif self.terrain[x][y] == 1:  # hilly
@@ -163,12 +165,12 @@ class ProbAgent(object):
                 break
             # maxProb = np.amax(self.containP)
             # print(self.maxContainProb, np.amax(self.containP))
-            choiceList = maxProbChoices(self.containP, self.maxContainProb, self.origin)
-            index = random.randint(0, len(choiceList) - 1)
-            x, y = choiceList[index]
+            self.choiceList = maxProbChoices(self.containP, self.maxContainProb, self.origin)
+            index = random.randint(0, len(self.choiceList) - 1)
+            x, y = self.choiceList[index]
             self.goal = (x, y)
             self.start = self.cur
-            # print(self.start, self.goal, self.containP[self.goal[0]][self.goal[1]], self.containP[self.target[0]][self.target[1]])
+            print(self.start, self.goal, self.containP[self.goal[0]][self.goal[1]], self.containP[self.target[0]][self.target[1]])
         return True
 
     def agent7(self):
@@ -183,22 +185,13 @@ class ProbAgent(object):
             if ret == 0:
                 break
             # maxProb = np.amax(self.findingP)
-            choiceList = maxProbChoices(self.findingP, self.maxFindingProb, self.origin)
-            index = random.randint(0, len(choiceList) - 1)
-            x, y = choiceList[index]
+            self.choiceList = maxProbChoices(self.findingP, self.maxFindingProb, self.origin)
+            index = random.randint(0, len(self.choiceList) - 1)
+            x, y = self.choiceList[index]
             self.goal = (x, y)
             self.start = self.cur
-            # print(self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
+            print(self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
         return True
-
-
-def genMaze(m, n, p, start, goal):
-    maze = np.zeros([m, n])
-    for x in range(m):
-        for y in range(n):
-            if p > random.random():
-                maze[x][y] = 1
-    return maze
 
 
 if __name__ == '__main__':
@@ -214,8 +207,8 @@ if __name__ == '__main__':
         target = randomInitialize(map.shape[0], map.shape[1], map, True)
         start = randomInitialize(map.shape[0], map.shape[1], map, True)
         # goal = randomInitialize(map.shape[0], map.shape[1], map, False)
-        # target = (14, 19)
-        # start = (36, 26)
+        # target = (69, 18)
+        # start = (0, 25)
         # goal = (4, 94)
 
         agent6 = ProbAgent(map, target)
@@ -233,6 +226,8 @@ if __name__ == '__main__':
         print("agent6 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time2 - time1, movement=len(agent6.trajectory), examination=agent6.examination, ratio=len(agent6.trajectory)/agent6.examination))
         timeAgent6 += time2 - time1
         tjtAgent6 += len(agent6.trajectory)
+        del agent6
+        gc.collect()
 
         agent7.agentType = 7
         time3 = time.time()
@@ -241,6 +236,8 @@ if __name__ == '__main__':
         print("agent7 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time4 - time3, movement=len(agent7.trajectory), examination=agent7.examination, ratio=len(agent7.trajectory)/agent7.examination))
         timeAgent7 += time4 - time3
         tjtAgent7 += len(agent7.trajectory)
+        del agent7
+        gc.collect()
         # break
     print("agent6 time={timeAgent6}, trajectory length={len}".format(timeAgent6=timeAgent6 / n, len=tjtAgent6 / n))
     print("agent7 time={timeAgent7}, trajectory length={len}".format(timeAgent7=timeAgent7 / n, len=tjtAgent7 / n))
