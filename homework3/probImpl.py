@@ -153,7 +153,7 @@ class ProbAgent(object):
                         self.findingP[x][y] = 0.2 * p
 
     def agent6(self):
-        self.goal = randomInitialize(map.shape[0], map.shape[1], map, False)
+        self.goal = randomInitialize(map.shape[0], map.shape[1], self.gridWorld, False)
         print(self.terrain[self.target[0]][self.target[1]])
         print(self.start, self.goal, self.target)
         self.cur = self.start
@@ -161,71 +161,70 @@ class ProbAgent(object):
             self.As = AStar(self.gridWorld, 1)
             self.As.start = self.start
             self.As.goal = self.goal
-            self.As.run()
+            while not self.As.run():
+                i, j = self.As.goal
+                self.gridWorld[i][j] = 1
+                self.containP[i][j] = 0
+                self.maxContainProb = np.amax(self.containP)
+                self.choiceList = maxProbChoices(self.containP, self.maxContainProb, self.gridWorld)
+                index = random.randint(0, len(self.choiceList) - 1)
+                x, y = self.choiceList[index]
+                self.As = AStar(self.gridWorld, 1)
+                self.As.start = self.start
+                self.As.goal = (x, y)
+            self.normalizeContainP()
             ret = self.followPlan(self.As.trajectory)
             if ret == 0:
                 break
-            self.choiceList = maxProbChoices(self.containP, self.maxContainProb, self.origin)
+            self.choiceList = maxProbChoices(self.containP, self.maxContainProb, self.gridWorld)
             index = random.randint(0, len(self.choiceList) - 1)
             x, y = self.choiceList[index]
-            norm = False
-            while self.origin[x][y] == 1:
-                self.gridWorld[x][y] = 1
-                self.containP[x][y] = 0
-                self.unknown -= 1
-                self.maxContainProb = np.amax(self.containP)
-                self.choiceList = maxProbChoices(self.containP, self.maxContainProb, self.origin)
-                index = random.randint(0, len(self.choiceList) - 1)
-                x, y = self.choiceList[index]
-                norm = True
-            if norm:
-                self.normalizeContainP()
             self.goal = (x, y)
             self.start = self.cur
-            # print(self.start, self.goal, self.containP[self.goal[0]][self.goal[1]], self.containP[self.target[0]][self.target[1]])
+            # print(len(self.choiceList), self.start, self.goal, self.containP[self.goal[0]][self.goal[1]], self.containP[self.target[0]][self.target[1]])
         return True
 
     def agent7(self):
         print(self.terrain[self.target[0]][self.target[1]])
         self.cur = self.start
-        self.goal = randomInitialize(map.shape[0], map.shape[1], map, False)
+        self.goal = randomInitialize(map.shape[0], map.shape[1], self.gridWorld, False)
         print(self.start, self.goal, self.target)
         while True:
             self.As = AStar(self.gridWorld, 1)
             self.As.start = self.start
             self.As.goal = self.goal
-            self.As.run()
+            while not self.As.run():
+                i, j = self.As.goal
+                self.gridWorld[i][j] = 1
+                self.containP[i][j] = 0
+                self.findingP[i][j] = 0
+                self.maxFindingProb = np.amax(self.findingP)
+                self.choiceList = maxProbChoices(self.findingP, self.maxFindingProb, self.gridWorld)
+                index = random.randint(0, len(self.choiceList) - 1)
+                x, y = self.choiceList[index]
+                self.As = AStar(self.gridWorld, 1)
+                self.As.start = self.start
+                self.As.goal = (x, y)
+            self.normalizeContainP()
+            self.normalizeFindingP()
             ret = self.followPlan(self.As.trajectory)
             if ret == 0:
                 break
-            self.choiceList = maxProbChoices(self.findingP, self.maxFindingProb, self.origin)
+            self.choiceList = maxProbChoices(self.findingP, self.maxFindingProb, self.gridWorld)
             index = random.randint(0, len(self.choiceList) - 1)
             x, y = self.choiceList[index]
-            norm = False
-            while self.origin[x][y] == 1:
-                self.gridWorld[x][y] = 1
-                self.containP[x][y] = 0
-                self.findingP[x][y] = 0
-                self.unknown -= 1
-                self.maxFindingProb = np.amax(self.findingP)
-                self.choiceList = maxProbChoices(self.findingP, self.maxFindingProb, self.origin)
-                index = random.randint(0, len(self.choiceList) - 1)
-                x, y = self.choiceList[index]
-            if norm:
-                self.normalizeContainP()
-                # self.normalizeFindingP()
             self.goal = (x, y)
             self.start = self.cur
-            print(len(self.choiceList), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
+            # print(len(self.choiceList), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
         return True
 
 
 if __name__ == '__main__':
     # allMaze = loadMaze("../maps", "density0.3.json")
-    n = 1
-    allMaze = loadMaze("./full_connected_maps", "dim101_1.json")
+    n = 10
+    allMaze = loadMaze("./full_connected_maps", "dim50_1.json")
     print(allMaze[0].shape)
-    map = allMaze[0]
+    map, terrain = allMaze[0], allMaze[1]
     timeAgent6, timeAgent7 = 0, 0
     tjtAgent6, tjtAgent7 = 0, 0
 
@@ -237,8 +236,8 @@ if __name__ == '__main__':
         # start = (56, 0)
         # goal = (4, 94)
 
-        terrain = generateTerrain(map.shape[0], map.shape[1])
-        terrain[target[0]][target[1]] = 2
+        # terrain = generateTerrain(map.shape[0], map.shape[1])
+        # terrain[target[0]][target[1]] = 2
 
         agent6 = ProbAgent(map, target)
         agent6.start = start
@@ -248,13 +247,13 @@ if __name__ == '__main__':
         agent7.start = start
         agent7.terrain = terrain
 
-        # agent6.agentType = 6
-        # time1 = time.time()
-        # agent6.agent6()
-        # time2 = time.time()
-        # print("agent6 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time2 - time1, movement=len(agent6.trajectory), examination=agent6.examination, ratio=len(agent6.trajectory)/agent6.examination))
-        # timeAgent6 += time2 - time1
-        # tjtAgent6 += len(agent6.trajectory)
+        agent6.agentType = 6
+        time1 = time.time()
+        agent6.agent6()
+        time2 = time.time()
+        print("agent6 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time2 - time1, movement=len(agent6.trajectory), examination=agent6.examination, ratio=len(agent6.trajectory)/agent6.examination))
+        timeAgent6 += time2 - time1
+        tjtAgent6 += len(agent6.trajectory)
         # del agent6
         # gc.collect()
 
@@ -265,8 +264,8 @@ if __name__ == '__main__':
         print("agent7 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time4 - time3, movement=len(agent7.trajectory), examination=agent7.examination, ratio=len(agent7.trajectory)/agent7.examination))
         timeAgent7 += time4 - time3
         tjtAgent7 += len(agent7.trajectory)
-        del agent7
-        gc.collect()
+        # del agent7
+        # gc.collect()
         # break
     print("agent6 time={timeAgent6}, trajectory length={len}".format(timeAgent6=timeAgent6 / n, len=tjtAgent6 / n))
     print("agent7 time={timeAgent7}, trajectory length={len}".format(timeAgent7=timeAgent7 / n, len=tjtAgent7 / n))

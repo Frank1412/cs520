@@ -6,6 +6,7 @@ import json
 import random
 import sys
 from generateMaze import NumpyArrayEncoder
+from Astar import *
 
 sys.setrecursionlimit(10 ** 8)
 
@@ -48,11 +49,11 @@ def generateTerrain(m, n):
     return terrain
 
 
-def maxProbChoices(P, maxProb, origin):
+def maxProbChoices(P, maxProb, gridWorld):
     (m, n), res = P.shape, []
     for i in range(m):
         for j in range(n):
-            if P[i][j] == maxProb:  #  and origin[i][j] != 1
+            if P[i][j] == maxProb and gridWorld[i][j] != 1:  # and origin[i][j] != 1
                 res.append((i, j))
     return res
 
@@ -64,29 +65,29 @@ def genByNum(m, n, p):
         for j in range(n):
             gridList.append((i, j))
     count, blocks = 0, round(m * n * p)
-    used = set()
     while count < blocks:
-        index = random.randint(0, m * n - 1)
+        # print(blocks)
+        index = random.randint(0, len(gridList) - 1)
+        x, y = gridList[index]
         while True:
             # print(index)
-            if index not in used:
+            if maze[x][y] != 1:
                 count += 1
-                used.add(index)
                 i, j = gridList[index]
                 seen = np.full([m, n], False)
-                maze[i][j] = 1
+                maze[x][y] = 1
                 start = randomInitialize(m, n, maze, True)
-                dfs(start, maze, (m, n), seen)
-                if sum(sum(seen)) == m * n - count:
-                    # print(count)
+                gridList.remove((x, y))
+                if judgeByAS(start, maze, (m, n), (x, y)):
                     break
                 else:
                     count -= 1
-                    used.remove(index)
-                    maze[i][j] = 0
-                    index = random.randint(0, m * n - 1)
+                    maze[x][y] = 0
+                    index = random.randint(0, len(gridList) - 1)
+                    x, y = gridList[index]
             else:
-                index = random.randint(0, m * n - 1)
+                index = random.randint(0, len(gridList) - 1)
+                x, y = gridList[index]
     return maze
 
 
@@ -137,29 +138,71 @@ def dfs(grid, maze, shape, seen):
         dfs(point, maze, shape, seen)
 
 
+def bfs(grid, maze, shape):
+    queue = [grid]
+    m, n = shape
+    seen = np.full([m, n], False)
+    seen[grid[0]][grid[1]] = True
+    count = 0
+    while len(queue) > 0:
+        x, y = queue.pop(0)
+        count += 1
+        for i, j in getAllNeighbors((x, y), m, n):
+            if maze[i][j] != 1 and not seen[i][j]:
+                queue.append((i, j))
+                seen[i][j] = True
+    # print(count)
+    return count
+
+
+def judgeByAS(start, maze, shape, block):
+    m, n = shape
+    # print(block, maze[block[0]][block[1]])
+    for (i, j) in getAllNeighbors(block, m, n):
+        if maze[i][j] != 1:
+            As = AStar(maze, 1)
+            As.start = start
+            As.goal = (i, j)
+            if not As.run():
+                return False
+    return True
+
+
 if __name__ == '__main__':
-    m, n, p = 101, 101, 0.3
+    m, n, p = 50, 50, 0.3
     map = np.zeros([m, n])
     num = 0
     for _ in range(50):
-        maze1 = genByNum(50, 50, 0.3)
-        maze2 = genByNum(50, 51, 0.3)
-        maze3 = genByNum(51, 50, 0.3)
-        maze4 = genByNum(51, 51, 0.3)
-        map[0:50, 0:50] = maze1
-        map[0:50, 50:] = maze2
-        map[50:, 0:50] = maze3
-        map[50:, 50:] = maze4
-        seen = np.full([m, n], False)
-        start = randomInitialize(m, n, map, True)
-        dfs(start, map, (m, n), seen)
-        if sum(sum(seen)) == m * n - round(m * n * p):
-            num += 1
-            print(True, num)
-            d = dict()
-            d["dim101"] = map
-            js = json.dumps(d, cls=NumpyArrayEncoder)
-            filenames = "dim101_" + str(num) + ".json"
-            f = open(os.path.join("./full_connected_maps", filenames), "w")
-            f.write(js)
-            f.close()
+        # maze1 = genByNum(50, 50, 0.3)
+        # maze2 = genByNum(50, 51, 0.3)
+        # maze3 = genByNum(51, 50, 0.3)
+        # maze4 = genByNum(51, 51, 0.3)
+        # map[0:50, 0:50] = maze1
+        # map[0:50, 50:] = maze2
+        # map[50:, 0:50] = maze3
+        # map[50:, 50:] = maze4
+        map = genByNum(m, n, 0.3)
+        terrain = generateTerrain(map.shape[0], map.shape[1])
+        # seen = np.full([m, n], False)
+        # start = randomInitialize(m, n, map, True)
+        # dfs(start, map, (m, n), seen)
+        num += 1
+        print(num, True)
+        d = dict()
+        d["dim50"] = map
+        d["terrain"] = terrain
+        js = json.dumps(d, cls=NumpyArrayEncoder)
+        filenames = "dim50_" + str(num) + ".json"
+        f = open(os.path.join("./full_connected_maps", filenames), "w")
+        f.write(js)
+        f.close()
+        # if sum(sum(seen)) == m * n - round(m * n * p):
+        #     num += 1
+        #     print(True, num)
+        #     d = dict()
+        #     d["dim50"] = map
+        #     js = json.dumps(d, cls=NumpyArrayEncoder)
+        #     filenames = "dim50_" + str(num) + ".json"
+        #     f = open(os.path.join("./full_connected_maps", filenames), "w")
+        #     f.write(js)
+        #     f.close()
