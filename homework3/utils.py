@@ -52,7 +52,7 @@ def maxProbChoices(P, maxProb, origin):
     (m, n), res = P.shape, []
     for i in range(m):
         for j in range(n):
-            if P[i][j] == maxProb and origin[i][j] != 1:
+            if P[i][j] == maxProb:  #  and origin[i][j] != 1
                 res.append((i, j))
     return res
 
