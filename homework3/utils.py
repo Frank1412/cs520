@@ -58,6 +58,22 @@ def maxProbChoices(P, maxProb, gridWorld):
     return res
 
 
+def maxProbCluster(P, choiceList, m, n):
+    maxProb = 0
+    pointList = []
+    for (i, j) in choiceList:
+        curSum = 0
+        for x, y in getAllNeighbors((i, j), m, n):
+            curSum += P[x][y]
+        if curSum > maxProb:
+            pointList.clear()
+            pointList.append((i, j))
+            maxProb = curSum
+        if curSum == maxProb:
+            pointList.append((i, j))
+    return pointList
+
+
 def genByNum(m, n, p):
     maze = np.zeros([m, n])
     gridList = []
