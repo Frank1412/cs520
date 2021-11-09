@@ -170,7 +170,7 @@ class ProbAgent(object):
                 # index = random.randint(0, len(self.choiceList) - 1)
                 # x, y = self.choiceList[index]
                 self.choiceList = maxProbSortByDis(self.containP, self.maxContainProb, self.gridWorld, self.cur)
-                _, (x, y) = self.choiceList.get()
+                x, y = self.choiceList[random.randint(0, len(self.choiceList)-1)]
                 self.As = AStar(self.gridWorld, 1)
                 self.As.start = self.start
                 self.As.goal = (x, y)
@@ -182,10 +182,10 @@ class ProbAgent(object):
             # index = random.randint(0, len(self.choiceList) - 1)
             # x, y = self.choiceList[index]
             self.choiceList = maxProbSortByDis(self.containP, self.maxContainProb, self.gridWorld, self.cur)
-            _, (x, y) = self.choiceList.get()
+            x, y = self.choiceList[random.randint(0, len(self.choiceList)-1)]
             self.goal = (x, y)
             self.start = self.cur
-            # print(self.choiceList.qsize(), self.start, self.goal, self.containP[self.goal[0]][self.goal[1]], self.containP[self.target[0]][self.target[1]])
+            # print(self.start, self.goal, self.containP[self.goal[0]][self.goal[1]], self.containP[self.target[0]][self.target[1]])
         return True
 
     def agent7(self):
@@ -207,7 +207,7 @@ class ProbAgent(object):
                 # index = random.randint(0, len(self.choiceList) - 1)
                 # x, y = self.choiceList[index]
                 self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
-                _, (x, y) = self.choiceList.get()
+                x, y = self.choiceList[random.randint(0, len(self.choiceList)-1)]
                 self.As = AStar(self.gridWorld, 1)
                 self.As.start = self.start
                 self.As.goal = (x, y)
@@ -220,10 +220,10 @@ class ProbAgent(object):
             # index = random.randint(0, len(self.choiceList) - 1)
             # x, y = self.choiceList[index]
             self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
-            _, (x, y) = self.choiceList.get()
+            x, y = self.choiceList[random.randint(0, len(self.choiceList)-1)]
             self.goal = (x, y)
             self.start = self.cur
-            # print(self.choiceList.qsize(), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
+            # print(self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
         return True
 
     def agent8(self):
@@ -246,8 +246,8 @@ class ProbAgent(object):
                 # index = random.randint(0, len(pointList) - 1)
                 # x, y = pointList[index]
                 self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
-                choice = self.choiceList.get()
-                x, y = chooseByCluster(self.findingP, self.choiceList, choice)[1]
+                choices = chooseByCluster(self.findingP, self.choiceList)
+                x, y = choices[random.randint(0, len(choices) - 1)]
 
                 self.As = AStar(self.gridWorld, 1)
                 self.As.start = self.start
@@ -262,12 +262,11 @@ class ProbAgent(object):
             # index = random.randint(0, len(pointList) - 1)
             # x, y = pointList[index]
             self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
-            choice = self.choiceList.get()
-            x, y = chooseByCluster(self.findingP, self.choiceList, choice)[1]
-
+            choices = chooseByCluster(self.findingP, self.choiceList)
+            x, y = choices[random.randint(0, len(choices)-1)]
             self.goal = (x, y)
             self.start = self.cur
-            # print(self.choiceList.qsize(), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
+            # print(self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
         return True
 
 
@@ -289,7 +288,7 @@ if __name__ == '__main__':
         # goal =  (27, 14)
 
         # terrain = generateTerrain(map.shape[0], map.shape[1])
-        # terrain[target[0]][target[1]] = 2
+        # terrain[target[0]][target[1]] = 0
 
         agent6 = ProbAgent(map, target)
         agent6.start = start

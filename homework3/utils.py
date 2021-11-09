@@ -77,22 +77,26 @@ def maxProbCluster(P, choiceList, m, n):
 def getNeighborProb(P, point, m, n):
     i, j = point
     curSum = 0
-    for x, y in getAllNeighbors((i, j), m, n):
+    neighbors = getAllNeighbors((i, j), m, n)
+    for x, y in neighbors:
         curSum += P[x][y]
-    return curSum
+    return curSum / len(neighbors)
 
 
-def chooseByCluster(P, fringe, choice):
+def chooseByCluster(P, fringe):
     m, n = P.shape
     clusterFringe = PriorityQueue()
-    clusterFringe.put((-getNeighborProb(P, choice[1], m, n), choice[1]))
-    while not fringe.empty():
-        priority, point = fringe.get()
-        if choice[0] == priority:
-            clusterFringe.put((-getNeighborProb(P, point, m, n), point))
+    for (i, j) in fringe:
+        clusterFringe.put((-getNeighborProb(P, (i, j), m, n), (i, j)))
+    highNeighbor = clusterFringe.get()
+    res = [highNeighbor[1]]
+    while not clusterFringe.empty():
+        priority, point = clusterFringe.queue[0]
+        if highNeighbor[0] == priority:
+            res.append(clusterFringe.get()[1])
         else:
             break
-    return clusterFringe.get()
+    return res
 
 
 def maxProbSortByDis(P, maxProb, gridWorld, point):
@@ -101,9 +105,17 @@ def maxProbSortByDis(P, maxProb, gridWorld, point):
     for i in range(m):
         for j in range(n):
             if P[i][j] == maxProb and gridWorld[i][j] != 1:  # and origin[i][j] != 1
-                dis = abs(i-point[0]) + abs(j-point[1])
+                dis = abs(i-point[0]) + abs(j-point[1])     # manhattan distance
                 fringe.put((dis, (i, j)))
-    return fringe
+    choice = fringe.get()
+    res = [choice[1]]
+    while not fringe.empty():
+        priority, point = fringe.queue[0]
+        if choice[0] == priority:
+            res.append(fringe.get()[1])
+        else:
+            break
+    return res
 
 
 def genByNum(m, n, p):

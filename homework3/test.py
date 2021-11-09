@@ -128,8 +128,7 @@ if __name__ == '__main__':
         row.append(ratio)
         row.append((movement+examination))
 
-        print("agent8 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time6 - time5, movement=len(agent8.trajectory), examination=agent8.examination,
-                                                                                                               ratio=len(agent8.trajectory) / agent8.examination))
+        print("agent8 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time6 - time5, movement=len(agent8.trajectory), examination=agent8.examination, ratio=len(agent8.trajectory) / agent8.examination))
 
         write_csv(path,row)
 
