@@ -74,6 +74,27 @@ def maxProbCluster(P, choiceList, m, n):
     return pointList
 
 
+def getNeighborProb(P, point, m, n):
+    i, j = point
+    curSum = 0
+    for x, y in getAllNeighbors((i, j), m, n):
+        curSum += P[x][y]
+    return curSum
+
+
+def chooseByCluster(P, fringe, choice):
+    m, n = P.shape
+    clusterFringe = PriorityQueue()
+    clusterFringe.put((-getNeighborProb(P, choice[1], m, n), choice[1]))
+    while not fringe.empty():
+        priority, point = fringe.get()
+        if choice[0] == priority:
+            clusterFringe.put((-getNeighborProb(P, point, m, n), point))
+        else:
+            break
+    return clusterFringe.get()
+
+
 def maxProbSortByDis(P, maxProb, gridWorld, point):
     fringe = PriorityQueue()
     m, n = P.shape

@@ -185,7 +185,7 @@ class ProbAgent(object):
             _, (x, y) = self.choiceList.get()
             self.goal = (x, y)
             self.start = self.cur
-            # print(len(self.choiceList), self.start, self.goal, self.containP[self.goal[0]][self.goal[1]], self.containP[self.target[0]][self.target[1]])
+            # print(self.choiceList.qsize(), self.start, self.goal, self.containP[self.goal[0]][self.goal[1]], self.containP[self.target[0]][self.target[1]])
         return True
 
     def agent7(self):
@@ -223,7 +223,7 @@ class ProbAgent(object):
             _, (x, y) = self.choiceList.get()
             self.goal = (x, y)
             self.start = self.cur
-            # print(len(self.choiceList), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
+            # print(self.choiceList.qsize(), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
         return True
 
     def agent8(self):
@@ -241,10 +241,14 @@ class ProbAgent(object):
                 self.containP[i][j] = 0
                 self.findingP[i][j] = 0
                 self.maxFindingProb = np.amax(self.findingP)
-                self.choiceList = maxProbChoices(self.findingP, self.maxFindingProb, self.gridWorld)
-                pointList = maxProbCluster(self.findingP, self.choiceList, self.m, self.n)
-                index = random.randint(0, len(pointList) - 1)
-                x, y = pointList[index]
+                # self.choiceList = maxProbChoices(self.findingP, self.maxFindingProb, self.gridWorld)
+                # pointList = maxProbCluster(self.findingP, self.choiceList, self.m, self.n)
+                # index = random.randint(0, len(pointList) - 1)
+                # x, y = pointList[index]
+                self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
+                choice = self.choiceList.get()
+                x, y = chooseByCluster(self.findingP, self.choiceList, choice)[1]
+
                 self.As = AStar(self.gridWorld, 1)
                 self.As.start = self.start
                 self.As.goal = (x, y)
@@ -253,13 +257,17 @@ class ProbAgent(object):
             ret = self.followPlan(self.As.trajectory)
             if ret == 0:
                 break
-            self.choiceList = maxProbChoices(self.findingP, self.maxFindingProb, self.gridWorld)
-            pointList = maxProbCluster(self.findingP, self.choiceList, self.m, self.n)
-            index = random.randint(0, len(pointList) - 1)
-            x, y = pointList[index]
+            # self.choiceList = maxProbChoices(self.findingP, self.maxFindingProb, self.gridWorld)
+            # pointList = maxProbCluster(self.findingP, self.choiceList, self.m, self.n)
+            # index = random.randint(0, len(pointList) - 1)
+            # x, y = pointList[index]
+            self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
+            choice = self.choiceList.get()
+            x, y = chooseByCluster(self.findingP, self.choiceList, choice)[1]
+
             self.goal = (x, y)
             self.start = self.cur
-            #print(len(self.choiceList), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
+            # print(self.choiceList.qsize(), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
         return True
 
 
@@ -276,8 +284,8 @@ if __name__ == '__main__':
         # target = randomInitialize(map.shape[0], map.shape[1], map, True)
         # start = randomInitialize(map.shape[0], map.shape[1], map, True)
         # goal = randomInitialize(map.shape[0], map.shape[1], map, False)
-        target = (14, 40)
-        start = (19, 21)
+        target = (19, 35)
+        start = (33, 44)
         # goal =  (27, 14)
 
         # terrain = generateTerrain(map.shape[0], map.shape[1])
@@ -291,9 +299,9 @@ if __name__ == '__main__':
         agent7.start = start
         agent7.terrain = terrain
 
-        # agent8 = ProbAgent(map, target)
-        # agent8.start = start
-        # agent8.terrain = terrain
+        agent8 = ProbAgent(map, target)
+        agent8.start = start
+        agent8.terrain = terrain
 
         agent6.agentType = 6
         time1 = time.time()
@@ -311,11 +319,12 @@ if __name__ == '__main__':
         timeAgent7 += time4 - time3
         tjtAgent7 += len(agent7.trajectory)
 
-        # agent8.agentType = 7
-        # time5 = time.time()
-        # agent8.agent8()
-        # time6 = time.time()
-        # print("agent8 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time6 - time5, movement=len(agent8.trajectory), examination=agent8.examination, ratio=len(agent8.trajectory) / agent8.examination))
+        agent8.agentType = 7
+        time5 = time.time()
+        agent8.agent8()
+        time6 = time.time()
+        print("agent8 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time6 - time5, movement=len(agent8.trajectory), examination=agent8.examination,
+                                                                                                               ratio=len(agent8.trajectory) / agent8.examination))
 
         # break
     # print("agent6 time={timeAgent6}, trajectory length={len}".format(timeAgent6=timeAgent6 / n, len=tjtAgent6 / n))
