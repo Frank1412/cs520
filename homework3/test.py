@@ -10,6 +10,39 @@ import pandas as pd
 import ast
 import gc
 from probImpl import *
+import csv
+
+def write_csv(path, row):
+    """
+    Write a line of data to a csv file
+    :param path: Path
+    :param row: A line of data,
+    ['..\\corpus\\W99-0632word.docx.txt', '110', '18.93%', '7', '1.20%', '2']
+    :return:
+    """
+    with open(path, 'a+', newline='') as wf:
+        csv_write = csv.writer(wf)
+        # list
+        data_row = row
+        csv_write.writerow(data_row)
+
+
+def create_csv(path, titles):
+    """
+    Create a csv file in the path
+    :param path: Path
+    :param titles: The first line of the csv file is the title of each column,
+    ['CP', 'PERSON_count', 'PERSON_percentage', 'PRODUCT_count', 'PRODUCT_percentage', 'EVENT_count', 'EVENT_percentage']
+    :return:
+    """
+    # path = "../result/result.csv"
+    with open(path, 'w+', newline='') as wf:
+        csv_write = csv.writer(wf)
+        csv_head = titles
+        csv_write.writerow(csv_head)
+
+
+
 
 
 if __name__ == '__main__':
@@ -29,13 +62,21 @@ if __name__ == '__main__':
     b = df['3'].tolist()
     # print(len(a))
 
+    #create new csv files. Map number need to be changed each time
+    path = "./agent_8_results/agent_8_map_12.csv"
+    titles = ['start','target','agent','time','movement','examinations','ratio','sum']
+    create_csv(path, titles)
+
+
+
     for i in range(n):
+        row = []
         # target = randomInitialize(map.shape[0], map.shape[1], map, True)
         # start = randomInitialize(map.shape[0], map.shape[1], map, True)
         # goal = randomInitialize(map.shape[0], map.shape[1], map, False)
-        target = a[i]
-        start = b[i]
-        print(start, target, map[7][9], map[15][32])
+        start = a[i]
+        target= b[i]
+        print(start, target)
         # goal =  (27, 14)
 
         # terrain = generateTerrain(map.shape[0], map.shape[1])
@@ -73,8 +114,24 @@ if __name__ == '__main__':
         time5 = time.time()
         agent8.agent8()
         time6 = time.time()
+
+        row.append(start)
+        row.append(target)
+        row.append(8)
+        time0=time6 - time5
+        row.append(time0)
+        movement = len(agent8.trajectory)
+        row.append(movement)
+        examination = agent8.examination
+        row.append(examination)
+        ratio = len(agent8.trajectory) / agent8.examination
+        row.append(ratio)
+        row.append((movement+examination))
+
         print("agent8 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time6 - time5, movement=len(agent8.trajectory), examination=agent8.examination,
                                                                                                                ratio=len(agent8.trajectory) / agent8.examination))
+
+        write_csv(path,row)
 
         # break
     # print("agent6 time={timeAgent6}, trajectory length={len}".format(timeAgent6=timeAgent6 / n, len=tjtAgent6 / n))
