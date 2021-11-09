@@ -251,7 +251,7 @@ class ProbAgent(object):
             x, y = pointList[index]
             self.goal = (x, y)
             self.start = self.cur
-            print(len(self.choiceList), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
+            #print(len(self.choiceList), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
         return True
 
 
