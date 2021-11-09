@@ -74,6 +74,17 @@ def maxProbCluster(P, choiceList, m, n):
     return pointList
 
 
+def maxProbSortByDis(P, maxProb, gridWorld, point):
+    fringe = PriorityQueue()
+    m, n = P.shape
+    for i in range(m):
+        for j in range(n):
+            if P[i][j] == maxProb and gridWorld[i][j] != 1:  # and origin[i][j] != 1
+                dis = abs(i-point[0]) + abs(j-point[1])
+                fringe.put((dis, (i, j)))
+    return fringe
+
+
 def genByNum(m, n, p):
     maze = np.zeros([m, n])
     gridList = []

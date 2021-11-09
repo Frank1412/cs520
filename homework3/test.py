@@ -15,7 +15,7 @@ from probImpl import *
 if __name__ == '__main__':
     # allMaze = loadMaze("../maps", "density0.3.json")
     n = 10
-    allMaze = loadMaze("./full_connected_maps", "dim50_11.json")
+    allMaze = loadMaze("./full_connected_maps", "dim50_12.json")
     print(allMaze[0].shape)
     map, terrain = allMaze[0], allMaze[1]
     timeAgent6, timeAgent7 = 0, 0
@@ -35,7 +35,7 @@ if __name__ == '__main__':
         # goal = randomInitialize(map.shape[0], map.shape[1], map, False)
         target = a[i]
         start = b[i]
-        print(start, target)
+        print(start, target, map[7][9], map[15][32])
         # goal =  (27, 14)
 
         # terrain = generateTerrain(map.shape[0], map.shape[1])
