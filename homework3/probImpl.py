@@ -153,7 +153,7 @@ class ProbAgent(object):
                         self.findingP[x][y] = 0.2 * p
 
     def agent6(self):
-        self.goal = randomInitialize(map.shape[0], map.shape[1], self.gridWorld, False)
+        self.goal = randomInitialize(self.origin.shape[0], self.origin.shape[1], self.gridWorld, False)
         print(self.terrain[self.target[0]][self.target[1]])
         print(self.start, self.goal, self.target)
         self.cur = self.start
@@ -187,7 +187,7 @@ class ProbAgent(object):
     def agent7(self):
         print(self.terrain[self.target[0]][self.target[1]])
         self.cur = self.start
-        self.goal = randomInitialize(map.shape[0], map.shape[1], self.gridWorld, False)
+        self.goal = randomInitialize(self.origin.shape[0], self.origin.shape[1], self.gridWorld, False)
         print(self.start, self.goal, self.target)
         while True:
             self.As = AStar(self.gridWorld, 1)
@@ -221,7 +221,7 @@ class ProbAgent(object):
     def agent8(self):
         print(self.terrain[self.target[0]][self.target[1]])
         self.cur = self.start
-        self.goal = randomInitialize(map.shape[0], map.shape[1], self.gridWorld, False)
+        self.goal = randomInitialize(self.origin.shape[0], self.origin.shape[1], self.gridWorld, False)
         print(self.start, self.goal, self.target)
         while True:
             self.As = AStar(self.gridWorld, 1)
@@ -251,7 +251,7 @@ class ProbAgent(object):
             x, y = pointList[index]
             self.goal = (x, y)
             self.start = self.cur
-            # print(len(self.choiceList), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
+            print(len(self.choiceList), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
         return True
 
 
