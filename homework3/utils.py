@@ -42,9 +42,10 @@ def generateTerrain(m, n):
     terrain = np.zeros([m, n])
     for i in range(m):
         for j in range(n):
-            if random.random() < 1 / 3:
+            p = random.random()
+            if p < 1 / 3:
                 terrain[i][j] = 1  # hilly
-            elif random.random() < 2 / 3:
+            elif p < 2 / 3:
                 terrain[i][j] = 2  # forest
     return terrain
 

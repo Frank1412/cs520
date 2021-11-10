@@ -273,9 +273,10 @@ class ProbAgent(object):
 if __name__ == '__main__':
     # allMaze = loadMaze("../maps", "density0.3.json")
     n = 1
-    allMaze = loadMaze("./full_connected_maps", "dim50_50.json")
+    allMaze = loadMaze("./full_connected_maps", "dim50_23.json")
     print(allMaze[0].shape)
     map, terrain = allMaze[0], allMaze[1]
+    print(sum(sum(terrain==0)), sum(sum(terrain==1)), sum(sum(terrain==2)))
     timeAgent6, timeAgent7 = 0, 0
     tjtAgent6, tjtAgent7 = 0, 0
 
