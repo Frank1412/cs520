@@ -47,10 +47,10 @@ def create_csv(path, titles):
 
 if __name__ == '__main__':
 
-    for i in range(26,37):
+    for i in range(6,11):
         print("map number {}".format(i))
         # allMaze = loadMaze("../maps", "density0.3.json")
-        n = 15
+        n = 1
         allMaze = loadMaze("./full_connected_maps", "dim50_{}.json".format(i))
         print(allMaze[0].shape)
         map, terrain = allMaze[0], allMaze[1]
@@ -98,7 +98,7 @@ if __name__ == '__main__':
             timeAgent6 += time2 - time1
             tjtAgent6 += len(agent6.trajectory)
 
-            row1.append(agent6.terrain)
+            row1.append(agent6.terrain[target[0]][target[1]])
             row1.append(start)
             row1.append(target)
             row1.append(6)
@@ -122,7 +122,7 @@ if __name__ == '__main__':
             timeAgent7 += time4 - time3
             tjtAgent7 += len(agent7.trajectory)
 
-            row2.append(agent7.terrain)
+            row2.append(agent7.terrain[target[0]][target[1]])
             row2.append(start)
             row2.append(target)
             row2.append(7)
@@ -144,7 +144,7 @@ if __name__ == '__main__':
                 time=time6 - time5, movement=len(agent8.trajectory), examination=agent8.examination,
                 ratio=len(agent8.trajectory) / agent8.examination))
 
-            row3.append(agent8.terrain)
+            row3.append(agent8.terrain[target[0]][target[1]])
             row3.append(start)
             row3.append(target)
             row3.append(8)
