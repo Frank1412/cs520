@@ -50,7 +50,7 @@ if __name__ == '__main__':
     for i in range(26,37):
         print("map number {}".format(i))
         # allMaze = loadMaze("../maps", "density0.3.json")
-        n = 2
+        n = 15
         allMaze = loadMaze("./full_connected_maps", "dim50_{}.json".format(i))
         print(allMaze[0].shape)
         map, terrain = allMaze[0], allMaze[1]
