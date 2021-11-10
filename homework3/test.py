@@ -58,7 +58,7 @@ if __name__ == '__main__':
         tjtAgent6, tjtAgent7 = 0, 0
 
         path = ("./agent_8_results/agent_6，7，8_map_{}.csv".format(i))
-        titles = ['start', 'target', 'agent', 'time', 'movement', 'examinations', 'ratio', 'sum']
+        titles = ['terrain','start', 'target', 'agent', 'time', 'movement', 'examinations', 'ratio', 'sum']
         create_csv(path, titles)
 
         for _ in range(n):
@@ -98,6 +98,7 @@ if __name__ == '__main__':
             timeAgent6 += time2 - time1
             tjtAgent6 += len(agent6.trajectory)
 
+            row1.append(agent6.terrain)
             row1.append(start)
             row1.append(target)
             row1.append(6)
@@ -121,6 +122,7 @@ if __name__ == '__main__':
             timeAgent7 += time4 - time3
             tjtAgent7 += len(agent7.trajectory)
 
+            row2.append(agent7.terrain)
             row2.append(start)
             row2.append(target)
             row2.append(7)
@@ -142,6 +144,7 @@ if __name__ == '__main__':
                 time=time6 - time5, movement=len(agent8.trajectory), examination=agent8.examination,
                 ratio=len(agent8.trajectory) / agent8.examination))
 
+            row3.append(agent8.terrain)
             row3.append(start)
             row3.append(target)
             row3.append(8)
