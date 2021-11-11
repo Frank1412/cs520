@@ -122,12 +122,10 @@ class ProbAgent(object):
             self.unknown -= 1
             # self.blockUpdate(grid, 0.3)
             return 1
-        else:  # unblock
-            if self.gridWorld[i][j] == 2:
-                self.gridWorld[i][j] = 0
-                self.containP[i][j] = 1 / self.unknown / 0.7
-            # if self.agentType == 7:
-            #     self.updateFindingP(grid)
+        # else:  # unblock
+        #     if self.gridWorld[i][j] == 2:
+        #         self.gridWorld[i][j] = 0
+        #         self.containP[i][j] = 1 / self.unknown / 0.7
         return 2
 
     def normalizeContainP(self):
@@ -273,7 +271,7 @@ class ProbAgent(object):
 if __name__ == '__main__':
     # allMaze = loadMaze("../maps", "density0.3.json")
     n = 1
-    allMaze = loadMaze("./full_connected_maps", "dim50_23.json")
+    allMaze = loadMaze("./full_connected_maps", "dim50_10.json")
     print(allMaze[0].shape)
     map, terrain = allMaze[0], allMaze[1]
     print(sum(sum(terrain==0)), sum(sum(terrain==1)), sum(sum(terrain==2)))
@@ -284,8 +282,9 @@ if __name__ == '__main__':
         # target = randomInitialize(map.shape[0], map.shape[1], map, True)
         # start = randomInitialize(map.shape[0], map.shape[1], map, True)
         # goal = randomInitialize(map.shape[0], map.shape[1], map, False)
-        target = (19, 35)
-        start = (33, 44)
+        target = (3, 19)
+        start = (2, 22)
+        # print(terrain[12][14], terrain[42][48], map[12][14], map[42][48])
         # goal =  (27, 14)
 
         # terrain = generateTerrain(map.shape[0], map.shape[1])
