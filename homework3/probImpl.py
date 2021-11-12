@@ -168,7 +168,7 @@ class ProbAgent(object):
                 # index = random.randint(0, len(self.choiceList) - 1)
                 # x, y = self.choiceList[index]
                 self.choiceList = maxProbSortByDis(self.containP, self.maxContainProb, self.gridWorld, self.cur)
-                x, y = self.choiceList[random.randint(0, len(self.choiceList)-1)]
+                x, y = self.choiceList[random.randint(0, len(self.choiceList) - 1)]
                 self.As = AStar(self.gridWorld, 1)
                 self.As.start = self.start
                 self.As.goal = (x, y)
@@ -180,7 +180,7 @@ class ProbAgent(object):
             # index = random.randint(0, len(self.choiceList) - 1)
             # x, y = self.choiceList[index]
             self.choiceList = maxProbSortByDis(self.containP, self.maxContainProb, self.gridWorld, self.cur)
-            x, y = self.choiceList[random.randint(0, len(self.choiceList)-1)]
+            x, y = self.choiceList[random.randint(0, len(self.choiceList) - 1)]
             self.goal = (x, y)
             self.start = self.cur
             # print(self.start, self.goal, self.containP[self.goal[0]][self.goal[1]], self.containP[self.target[0]][self.target[1]])
@@ -205,7 +205,7 @@ class ProbAgent(object):
                 # index = random.randint(0, len(self.choiceList) - 1)
                 # x, y = self.choiceList[index]
                 self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
-                x, y = self.choiceList[random.randint(0, len(self.choiceList)-1)]
+                x, y = self.choiceList[random.randint(0, len(self.choiceList) - 1)]
                 self.As = AStar(self.gridWorld, 1)
                 self.As.start = self.start
                 self.As.goal = (x, y)
@@ -218,7 +218,7 @@ class ProbAgent(object):
             # index = random.randint(0, len(self.choiceList) - 1)
             # x, y = self.choiceList[index]
             self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
-            x, y = self.choiceList[random.randint(0, len(self.choiceList)-1)]
+            x, y = self.choiceList[random.randint(0, len(self.choiceList) - 1)]
             self.goal = (x, y)
             self.start = self.cur
             # print(self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
@@ -241,7 +241,8 @@ class ProbAgent(object):
                 self.maxFindingProb = np.amax(self.findingP)
                 # self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
                 # choices = chooseByCluster(self.findingP, self.choiceList)
-                choices = judgeByDisAs(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
+                choices = judgeByDisAs(self.findingP, np.amax(self.findingP), self.gridWorld, self.cur)
+                # choices = sortByUtility(self.findingP, self.cur)
                 x, y = choices[random.randint(0, len(choices) - 1)]
                 self.As = AStar(self.gridWorld, 1)
                 self.As.start = self.start
@@ -252,21 +253,22 @@ class ProbAgent(object):
                 break
             # self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
             # choices = chooseByCluster(self.findingP, self.choiceList)
-            choices = judgeByDisAs(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
+            choices = judgeByDisAs(self.findingP, np.amax(self.findingP), self.gridWorld, self.cur)
+            # choices = sortByUtility(self.findingP, self.cur)
             x, y = choices[random.randint(0, len(choices) - 1)]
             self.goal = (x, y)
             self.start = self.cur
-            # print(self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
+            # print(np.amax(self.findingP), self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
         return True
 
 
 if __name__ == '__main__':
     # allMaze = loadMaze("../maps", "density0.3.json")
-    n = 1
+    n = 10
     allMaze = loadMaze("./full_connected_maps", "dim50_10.json")
     print(allMaze[0].shape)
     map, terrain = allMaze[0], allMaze[1]
-    print(sum(sum(terrain==0)), sum(sum(terrain==1)), sum(sum(terrain==2)))
+    print(sum(sum(terrain == 0)), sum(sum(terrain == 1)), sum(sum(terrain == 2)))
     timeAgent6, timeAgent7 = 0, 0
     tjtAgent6, tjtAgent7 = 0, 0
 
@@ -294,21 +296,21 @@ if __name__ == '__main__':
         agent8.start = start
         agent8.terrain = terrain
 
-        agent6.agentType = 6
-        time1 = time.time()
-        agent6.agent6()
-        time2 = time.time()
-        print("agent6 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time2 - time1, movement=len(agent6.trajectory), examination=agent6.examination, ratio=len(agent6.trajectory)/agent6.examination))
-        timeAgent6 += time2 - time1
-        tjtAgent6 += len(agent6.trajectory)
-
-        agent7.agentType = 7
-        time3 = time.time()
-        agent7.agent7()
-        time4 = time.time()
-        print("agent7 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time4 - time3, movement=len(agent7.trajectory), examination=agent7.examination, ratio=len(agent7.trajectory)/agent7.examination))
-        timeAgent7 += time4 - time3
-        tjtAgent7 += len(agent7.trajectory)
+        # agent6.agentType = 6
+        # time1 = time.time()
+        # agent6.agent6()
+        # time2 = time.time()
+        # print("agent6 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time2 - time1, movement=len(agent6.trajectory), examination=agent6.examination, ratio=len(agent6.trajectory)/agent6.examination))
+        # timeAgent6 += time2 - time1
+        # tjtAgent6 += len(agent6.trajectory)
+        #
+        # agent7.agentType = 7
+        # time3 = time.time()
+        # agent7.agent7()
+        # time4 = time.time()
+        # print("agent7 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time4 - time3, movement=len(agent7.trajectory), examination=agent7.examination, ratio=len(agent7.trajectory)/agent7.examination))
+        # timeAgent7 += time4 - time3
+        # tjtAgent7 += len(agent7.trajectory)
 
         agent8.agentType = 7
         time5 = time.time()

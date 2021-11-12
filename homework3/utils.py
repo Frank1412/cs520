@@ -111,9 +111,9 @@ def maxProbSortByDis(P, maxProb, gridWorld, point):
     choice = fringe.get()
     res = [choice[1]]
     while not fringe.empty():
-        priority, point = fringe.queue[0]
+        priority, point = fringe.get()
         if choice[0] == priority:
-            res.append(fringe.get()[1])
+            res.append(point)
         else:
             break
     return res
@@ -130,9 +130,9 @@ def judgeByDisAs(P, maxProb, gridWorld, point):
     choice = fringe.get()
     res = [choice[1]]
     while not fringe.empty():
-        priority, point = fringe.queue[0]
+        priority, point = fringe.get()
         if choice[0] == priority:
-            res.append(fringe.get()[1])
+            res.append(point)
         else:
             break
     disFringe = PriorityQueue()
@@ -145,26 +145,27 @@ def judgeByDisAs(P, maxProb, gridWorld, point):
     choice = disFringe.get()
     res = [choice[1]]
     while not disFringe.empty():
-        priority, point = disFringe.queue[0]
+        priority, point = disFringe.get()
         if choice[0] == priority:
-            res.append(disFringe.get()[1])
+            res.append(point)
         else:
             break
     return res
 
 
 def sortByUtility(P, point):
+    # print(P[:5, :5])
     m, n = P.shape
     res = []
-    utility = copy.deepcopy(P)
-    maxProb = 0
+    utility = np.zeros([m, n])
+    maxUtility = 0
     for i in range(m):
         for j in range(n):
-            utility[i][j] = utility[i][j] / (abs(point[0]-i) + abs(point[1]-j))
-            maxProb = max(maxProb, utility[i][j])
+            utility[i][j] = P[i][j] / math.sqrt(abs(point[0]-i) + abs(point[1]-j)+1)
+    maxUtility = np.amax(utility)
     for i in range(m):
         for j in range(n):
-            if utility[i][j] == maxProb:
+            if utility[i][j] == maxUtility:
                 res.append((i, j))
     return res
 
