@@ -119,6 +119,56 @@ def maxProbSortByDis(P, maxProb, gridWorld, point):
     return res
 
 
+def judgeByDisAs(P, maxProb, gridWorld, point):
+    fringe = PriorityQueue()
+    m, n = P.shape
+    for i in range(m):
+        for j in range(n):
+            if P[i][j] == maxProb and gridWorld[i][j] != 1:  # and origin[i][j] != 1
+                dis = abs(i - point[0]) + abs(j - point[1])  # manhattan distance
+                fringe.put((dis, (i, j)))
+    choice = fringe.get()
+    res = [choice[1]]
+    while not fringe.empty():
+        priority, point = fringe.queue[0]
+        if choice[0] == priority:
+            res.append(fringe.get()[1])
+        else:
+            break
+    disFringe = PriorityQueue()
+    for goal in res:
+        As = AStar(gridWorld, 1)
+        As.start = point
+        As.goal = goal
+        As.run()
+        disFringe.put((len(As.trajectory), goal))
+    choice = disFringe.get()
+    res = [choice[1]]
+    while not disFringe.empty():
+        priority, point = disFringe.queue[0]
+        if choice[0] == priority:
+            res.append(disFringe.get()[1])
+        else:
+            break
+    return res
+
+
+def sortByUtility(P, point):
+    m, n = P.shape
+    res = []
+    utility = copy.deepcopy(P)
+    maxProb = 0
+    for i in range(m):
+        for j in range(n):
+            utility[i][j] = utility[i][j] / (abs(point[0]-i) + abs(point[1]-j))
+            maxProb = max(maxProb, utility[i][j])
+    for i in range(m):
+        for j in range(n):
+            if utility[i][j] == maxProb:
+                res.append((i, j))
+    return res
+
+
 def genByNum(m, n, p):
     maze = np.zeros([m, n])
     gridList = []

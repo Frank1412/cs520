@@ -44,7 +44,7 @@ class ProbAgent(object):
                 self.normalizeContainP()
                 if self.agentType == 7:
                     self.updateFindingP((i, j))
-                    self.normalizeFindingP()
+                    # self.normalizeFindingP()
                 if self.agentType == 6:
                     self.maxContainProb = np.amax(self.containP)
                 if self.agentType == 7:
@@ -59,7 +59,7 @@ class ProbAgent(object):
             self.normalizeContainP()
             if self.agentType == 7:
                 self.updateFindingP((i, j))
-                self.normalizeFindingP()
+                # self.normalizeFindingP()
             if self.judgeMaxChange():
                 ret = 2
                 break
@@ -239,29 +239,21 @@ class ProbAgent(object):
                 self.containP[i][j] = 0
                 self.findingP[i][j] = 0
                 self.maxFindingProb = np.amax(self.findingP)
-                # self.choiceList = maxProbChoices(self.findingP, self.maxFindingProb, self.gridWorld)
-                # pointList = maxProbCluster(self.findingP, self.choiceList, self.m, self.n)
-                # index = random.randint(0, len(pointList) - 1)
-                # x, y = pointList[index]
-                self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
-                choices = chooseByCluster(self.findingP, self.choiceList)
+                # self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
+                # choices = chooseByCluster(self.findingP, self.choiceList)
+                choices = judgeByDisAs(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
                 x, y = choices[random.randint(0, len(choices) - 1)]
-
                 self.As = AStar(self.gridWorld, 1)
                 self.As.start = self.start
                 self.As.goal = (x, y)
             self.normalizeContainP()
-            self.normalizeFindingP()
             ret = self.followPlan(self.As.trajectory)
             if ret == 0:
                 break
-            # self.choiceList = maxProbChoices(self.findingP, self.maxFindingProb, self.gridWorld)
-            # pointList = maxProbCluster(self.findingP, self.choiceList, self.m, self.n)
-            # index = random.randint(0, len(pointList) - 1)
-            # x, y = pointList[index]
-            self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
-            choices = chooseByCluster(self.findingP, self.choiceList)
-            x, y = choices[random.randint(0, len(choices)-1)]
+            # self.choiceList = maxProbSortByDis(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
+            # choices = chooseByCluster(self.findingP, self.choiceList)
+            choices = judgeByDisAs(self.findingP, self.maxFindingProb, self.gridWorld, self.cur)
+            x, y = choices[random.randint(0, len(choices) - 1)]
             self.goal = (x, y)
             self.start = self.cur
             # print(self.start, self.goal, self.findingP[self.goal[0]][self.goal[1]], self.findingP[self.target[0]][self.target[1]])
@@ -279,11 +271,11 @@ if __name__ == '__main__':
     tjtAgent6, tjtAgent7 = 0, 0
 
     for _ in range(n):
-        # target = randomInitialize(map.shape[0], map.shape[1], map, True)
-        # start = randomInitialize(map.shape[0], map.shape[1], map, True)
+        target = randomInitialize(map.shape[0], map.shape[1], map, True)
+        start = randomInitialize(map.shape[0], map.shape[1], map, True)
         # goal = randomInitialize(map.shape[0], map.shape[1], map, False)
-        target = (3, 19)
-        start = (2, 22)
+        # target = (3, 19)
+        # start = (2, 22)
         # print(terrain[12][14], terrain[42][48], map[12][14], map[42][48])
         # goal =  (27, 14)
 
