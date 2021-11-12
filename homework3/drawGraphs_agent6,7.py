@@ -22,6 +22,7 @@ if __name__ == '__main__':
     for i in range(6, 11):
         df = pd.read_csv(r"./agent_8_results/agent_6，7，8_map_{}.csv".format(i))
         df = df[df['agent'] == 6]
+        #df = df.loc[(df['movement']>500) & (df['movement']<5000)]
         df['movement'] = df['movement'].astype('float32')
         df['examinations'] = df['examinations'].astype('float32')
         df['ratio'] = df['ratio'].astype('float32')
@@ -38,6 +39,7 @@ if __name__ == '__main__':
 
         df = pd.read_csv(r"./agent_8_results/agent_6，7，8_map_{}.csv".format(i))
         df = df[df['agent'] == 7]
+        #df = df.loc[(df['movement'] > 500) & (df['movement'] < 5000)]
         df['movement'] = df['movement'].astype('float32')
         df['examinations'] = df['examinations'].astype('float32')
         df['ratio'] = df['ratio'].astype('float32')
