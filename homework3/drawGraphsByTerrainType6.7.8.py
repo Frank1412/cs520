@@ -72,6 +72,7 @@ if __name__ == '__main__':
 
 
         df = pd.read_csv(r"./agent_8_results/agent_6，7，8_map_{}.csv".format(i))
+        df = df[df['agent'] == 8]
 
         df['sum'] = df['sum'].astype('float32')
         df0 = df[df['terrain'] == 0]
