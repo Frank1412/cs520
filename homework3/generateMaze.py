@@ -3,7 +3,7 @@
 import numpy as np
 import os
 import sys
-from homework3.Astar import AStar, genMaze
+from Astar import AStar, genMaze
 import json
 from json import JSONEncoder
 
