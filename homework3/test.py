@@ -50,7 +50,7 @@ if __name__ == '__main__':
     for i in range(6,11):
         print("map number {}".format(i))
         # allMaze = loadMaze("../maps", "density0.3.json")
-        n = 1
+        n = 30
         allMaze = loadMaze("./full_connected_maps", "dim50_{}.json".format(i))
         print(allMaze[0].shape)
         map, terrain = allMaze[0], allMaze[1]
@@ -84,9 +84,9 @@ if __name__ == '__main__':
             agent7.start = start
             agent7.terrain = terrain
 
-            agent8 = ProbAgent(map, target)
-            agent8.start = start
-            agent8.terrain = terrain
+            # agent8 = ProbAgent(map, target)
+            # agent8.start = start
+            # agent8.terrain = terrain
 
             agent6.agentType = 6
             time1 = time.time()
@@ -136,31 +136,31 @@ if __name__ == '__main__':
             row2.append(ratio)
             row2.append((movement + examination))
 
-            agent8.agentType = 7
-            time5 = time.time()
-            agent8.agent8()
-            time6 = time.time()
-            print("agent8 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(
-                time=time6 - time5, movement=len(agent8.trajectory), examination=agent8.examination,
-                ratio=len(agent8.trajectory) / agent8.examination))
-
-            row3.append(agent8.terrain[target[0]][target[1]])
-            row3.append(start)
-            row3.append(target)
-            row3.append(8)
-            time33 = time6 - time5
-            row3.append(time33)
-            movement = len(agent8.trajectory)
-            row3.append(movement)
-            examination = agent8.examination
-            row3.append(examination)
-            ratio = len(agent8.trajectory) / agent8.examination
-            row3.append(ratio)
-            row3.append((movement + examination))
+            # agent8.agentType = 7
+            # time5 = time.time()
+            # agent8.agent8()
+            # time6 = time.time()
+            # print("agent8 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(
+            #     time=time6 - time5, movement=len(agent8.trajectory), examination=agent8.examination,
+            #     ratio=len(agent8.trajectory) / agent8.examination))
+            #
+            # row3.append(agent8.terrain[target[0]][target[1]])
+            # row3.append(start)
+            # row3.append(target)
+            # row3.append(8)
+            # time33 = time6 - time5
+            # row3.append(time33)
+            # movement = len(agent8.trajectory)
+            # row3.append(movement)
+            # examination = agent8.examination
+            # row3.append(examination)
+            # ratio = len(agent8.trajectory) / agent8.examination
+            # row3.append(ratio)
+            # row3.append((movement + examination))
 
             write_csv(path, row1)
             write_csv(path, row2)
-            write_csv(path, row3)
+            # write_csv(path, row3)
 
             # break
         # print("agent6 time={timeAgent6}, trajectory length={len}".format(timeAgent6=timeAgent6 / n, len=tjtAgent6 / n))
