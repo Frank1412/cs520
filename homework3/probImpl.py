@@ -52,7 +52,6 @@ class ProbAgent(object):
                 return 1
             self.cur = (i, j)
             if (i, j) == last:
-                # print(True)
                 ret = self.examine((i, j))
                 if ret == 0:
                     break
@@ -79,21 +78,47 @@ class ProbAgent(object):
     def examine(self, grid):
         self.examination += 1
         i, j = grid
+        p = self.containP[i][j]
         if grid == self.target:
-            self.containP[i][j] = 1
-            self.findingP[i][j] = 1
-            self.gridWorld[i][j] = 0
-            return 0
+            rand = random.random()
+            if self.terrain[i][j] == 0:  # flat
+                if rand > 0.2:
+                    self.containP[i][j] = 1
+                    self.findingP[i][j] = 1
+                    self.gridWorld[i][j] = 0
+                    return 0
+                else:
+                    self.containP[i][j] = 0.2 * p / (1 - 0.8 * p)
+                    for x in range(self.m):
+                        for y in range(self.n):
+                            if (x, y) != grid:
+                                self.containP[x][y] = self.containP[x][y] / (1 - 0.8 * p)
+            if self.terrain[i][j] == 1:  # hilly
+                if rand > 0.5:
+                    self.containP[i][j] = 1
+                    self.findingP[i][j] = 1
+                    self.gridWorld[i][j] = 0
+                    return 0
+                else:
+                    self.containP[i][j] = 0.5 * p / (1 - 0.5 * p)
+                    for x in range(self.m):
+                        for y in range(self.n):
+                            if (x, y) != grid:
+                                self.containP[x][y] = self.containP[x][y] / (1 - 0.5 * p)
+            if self.terrain[i][j] == 2:  # forest
+                if rand > 0.8:
+                    self.containP[i][j] = 1
+                    self.findingP[i][j] = 1
+                    self.gridWorld[i][j] = 0
+                    return 0
+                else:
+                    self.containP[i][j] = 0.8 * p / (1 - 0.2 * p)
+                    for x in range(self.m):
+                        for y in range(self.n):
+                            if (x, y) != grid:
+                                self.containP[x][y] = self.containP[x][y] / (1 - 0.2 * p)
+            return 2
         else:
-            # p = self.containP[i][j]
-            # if self.terrain[i][j] == 0:  # flat
-            #     self.containP[i][j] = 0.2 * p / (1 - 0.8 * p)
-            # elif self.terrain[i][j] == 1:  # hilly
-            #     self.containP[i][j] = 0.5 * p / (1 - 0.5 * p)
-            # else:  # forest
-            #     self.containP[i][j] = 0.8 * p / (1 - 0.2 * p)
-
-            p = self.containP[i][j]
             if self.terrain[i][j] == 0:  # flat
                 self.containP[i][j] = 0.2 * p / (1 - 0.8 * p)
                 for x in range(self.m):
@@ -119,7 +144,7 @@ class ProbAgent(object):
         if self.origin[i][j] == 1:  # block
             self.containP[i][j] = 0
             self.gridWorld[i][j] = 1
-            self.unknown -= 1
+            # self.unknown -= 1
             # self.blockUpdate(grid, 0.3)
             return 1
         # else:  # unblock
@@ -296,28 +321,27 @@ if __name__ == '__main__':
         agent8.start = start
         agent8.terrain = terrain
 
-        # agent6.agentType = 6
-        # time1 = time.time()
-        # agent6.agent6()
-        # time2 = time.time()
-        # print("agent6 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time2 - time1, movement=len(agent6.trajectory), examination=agent6.examination, ratio=len(agent6.trajectory)/agent6.examination))
-        # timeAgent6 += time2 - time1
-        # tjtAgent6 += len(agent6.trajectory)
-        #
-        # agent7.agentType = 7
-        # time3 = time.time()
-        # agent7.agent7()
-        # time4 = time.time()
-        # print("agent7 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time4 - time3, movement=len(agent7.trajectory), examination=agent7.examination, ratio=len(agent7.trajectory)/agent7.examination))
-        # timeAgent7 += time4 - time3
-        # tjtAgent7 += len(agent7.trajectory)
+        agent6.agentType = 6
+        time1 = time.time()
+        agent6.agent6()
+        time2 = time.time()
+        print("agent6 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time2 - time1, movement=len(agent6.trajectory), examination=agent6.examination, ratio=len(agent6.trajectory)/agent6.examination))
+        timeAgent6 += time2 - time1
+        tjtAgent6 += len(agent6.trajectory)
 
-        agent8.agentType = 7
-        time5 = time.time()
-        agent8.agent8()
-        time6 = time.time()
-        print("agent8 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time6 - time5, movement=len(agent8.trajectory), examination=agent8.examination,
-                                                                                                               ratio=len(agent8.trajectory) / agent8.examination))
+        agent7.agentType = 7
+        time3 = time.time()
+        agent7.agent7()
+        time4 = time.time()
+        print("agent7 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time4 - time3, movement=len(agent7.trajectory), examination=agent7.examination, ratio=len(agent7.trajectory)/agent7.examination))
+        timeAgent7 += time4 - time3
+        tjtAgent7 += len(agent7.trajectory)
+
+        # agent8.agentType = 7
+        # time5 = time.time()
+        # agent8.agent8()
+        # time6 = time.time()
+        # print("agent8 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(time=time6 - time5, movement=len(agent8.trajectory), examination=agent8.examination, ratio=len(agent8.trajectory) / agent8.examination))
 
         # break
     # print("agent6 time={timeAgent6}, trajectory length={len}".format(timeAgent6=timeAgent6 / n, len=tjtAgent6 / n))
