@@ -24,7 +24,8 @@ if __name__ == '__main__':
     ratioListAgent8 = []
     sumListAgent8 = []
 
-    for i in range(26, 36):
+    list = [6,7,12,14,15]
+    for i in list:
         df = pd.read_csv(r"./agent_8_results/agent_6，7，8_map_{}.csv".format(i))
         df = df[df['agent'] == 6]
         df['movement'] = df['movement'].astype('float32')
@@ -56,7 +57,7 @@ if __name__ == '__main__':
         ratioListAgent7.append(averageRatio)
         sumListAgent7.append(averageSum)
 
-        df = pd.read_csv(r"./agent_8_results/agent_6，7，8_map_{}.csv".format(i))
+        df = pd.read_csv(r"./agent_8_results/agent_8_map_{}.csv".format(i))
         df = df[df['agent'] == 8]
         df['movement'] = df['movement'].astype('float32')
         df['examinations'] = df['examinations'].astype('float32')
@@ -72,9 +73,10 @@ if __name__ == '__main__':
         sumListAgent8.append(averageSum)
     print(len(sumListAgent6))
 
-    size = 10
+    size = 5
     x = np.arange(size)
-    labels = ['map1', 'map2', 'map3', 'map4', 'map5', 'map6', 'map7', 'map8', 'map9', 'map10']
+    labels = ['map6', 'map7', 'map8', 'map9', 'map10']
+    #labels = ['map1', 'map2', 'map3', 'map4', 'map5', 'map6', 'map7', 'map8', 'map9', 'map10']
 
     total_width, n = 0.5, 3
     width = total_width / n

@@ -46,11 +46,12 @@ def create_csv(path, titles):
 
 
 if __name__ == '__main__':
+    list = [6,7,12,14,15]
 
-    for i in range(6,8):
+    for i in list:
         print("map number {}".format(i))
         # allMaze = loadMaze("../maps", "density0.3.json")
-        n = 2
+        n = 30
         allMaze = loadMaze("./full_connected_maps", "dim50_{}.json".format(i))
         print(allMaze[0].shape)
         map, terrain = allMaze[0], allMaze[1]

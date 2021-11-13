@@ -19,7 +19,7 @@ if __name__ == '__main__':
     ratioListAgent7 = []
     sumListAgent7 = []
 
-    for i in range(6, 11):
+    for i in range(11, 16):
         df = pd.read_csv(r"./agent_8_results/agent_6，7，8_map_{}.csv".format(i))
         df = df[df['agent'] == 6]
         #df = df.loc[(df['movement']>500) & (df['movement']<5000)]
