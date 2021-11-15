@@ -348,7 +348,7 @@ class ProbAgent(object):
             As.goal = goal
             As.run()
             # move1 = len(As.trajectory)
-            move1 = abs(start[0]-goal[0]) + abs(start[1] - goal[1])
+            # move1 = abs(start[0]-goal[0]) + abs(start[1] - goal[1])
             tmpContainP, tmpFindingP = copy.deepcopy(self.containP), copy.deepcopy(self.findingP)
             for (i, j) in As.trajectory:
                 if (i, j) == goal:
@@ -369,8 +369,8 @@ class ProbAgent(object):
             tmpMaxFindProb = np.amax(tmpFindingP)
             choices = maxProbSortByDis(tmpFindingP, tmpMaxFindProb, self.gridWorld, goal)
             x, y = choices[random.randint(0, len(choices) - 1)]
-            move2 = abs(goal[0]-x) + abs(goal[1]-y)
-            move_list.put((move1 + move2, goal))
+            # move2 = abs(goal[0]-x) + abs(goal[1]-y)
+            move_list.put((tmpMaxFindProb, goal))
         first = move_list.get()
         res = [first[1]]
         while not move_list.empty():
@@ -385,7 +385,7 @@ class ProbAgent(object):
 if __name__ == '__main__':
     # allMaze = loadMaze("../maps", "density0.3.json")
     n = 10
-    allMaze = loadMaze("./full_connected_maps", "dim50_11.json")
+    allMaze = loadMaze("./full_connected_maps", "dim50_12.json")
     print(allMaze[0].shape)
     map, terrain = allMaze[0], allMaze[1]
     print(sum(sum(terrain == 0)), sum(sum(terrain == 1)), sum(sum(terrain == 2)))
