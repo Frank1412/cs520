@@ -46,9 +46,9 @@ def create_csv(path, titles):
 
 
 if __name__ == '__main__':
-    list = [6,7,12,14,15]
 
-    for i in list:
+
+    for i in range(6,11):
         print("map number {}".format(i))
         # allMaze = loadMaze("../maps", "density0.3.json")
         n = 30
@@ -58,7 +58,7 @@ if __name__ == '__main__':
         timeAgent6, timeAgent7 = 0, 0
         tjtAgent6, tjtAgent7 = 0, 0
 
-        df = pd.read_csv(r"./agent_8_results/agent_6，7，8_map_{}.csv".format(i))
+        df = pd.read_csv(r"./agent_8_results/fangshouzhi/agent_6，7，8_map_{}.csv".format(i))
         df = df[df['agent'] == 6]
         df['start'] = df['start'].apply(ast.literal_eval)
         df['target'] = df['target'].apply(ast.literal_eval)
@@ -151,7 +151,7 @@ if __name__ == '__main__':
 
             agent8.agentType = 7
             time5 = time.time()
-            agent8.agent8()
+            agent8.agent8Try()
             time6 = time.time()
             print("agent8 true, time={time}, movement={movement}, examination={examination}, ratio={ratio}".format(
                 time=time6 - time5, movement=len(agent8.trajectory), examination=agent8.examination,
