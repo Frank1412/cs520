@@ -385,7 +385,7 @@ class ProbAgent(object):
 if __name__ == '__main__':
     # allMaze = loadMaze("../maps", "density0.3.json")
     n = 10
-    allMaze = loadMaze("./full_connected_maps", "dim50_12.json")
+    allMaze = loadMaze("./full_connected_maps", "dim50_13.json")
     print(allMaze[0].shape)
     map, terrain = allMaze[0], allMaze[1]
     print(sum(sum(terrain == 0)), sum(sum(terrain == 1)), sum(sum(terrain == 2)))
