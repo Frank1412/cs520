@@ -36,7 +36,7 @@ class RepeatedAStar(object):
         place = np.expand_dims(place, 2)
         x = np.concatenate([x, place], axis=-1)
         # x = np.concatenate([x, np.expand_dims(self.visit, 2)], axis=-1)
-        x = np.concatenate([x, np.expand_dims(self.visitCount, 2)], axis=-1)
+        # x = np.concatenate([x, np.expand_dims(self.visitCount, 2)], axis=-1)
         label = cls.get((next[0] - prev[0], next[1] - prev[1]))
         return np.array(x), label
 
@@ -49,10 +49,10 @@ class RepeatedAStar(object):
                 self.trajectory.append((i, j))
                 # print(i - self.cur[0], j - self.cur[1])
                 # if idx < 4:
-                #     sample = self.gen_data((i, j), self.cur)
-                #     self.dataX.append(sample[0])
-                #     self.dataY.append(sample[1])
-                self.visitCount[i][j] += 1
+                sample = self.gen_data((i, j), self.cur)
+                self.dataX.append(sample[0])
+                self.dataY.append(sample[1])
+                # self.visitCount[i][j] += 1
             if self.map[i][j] == 1:
                 block = (i, j)
                 index = idx - 1
@@ -78,9 +78,9 @@ class RepeatedAStar(object):
         while True:
             if not As.run():
                 return False
-            sample = self.gen_data(As.trajectory[1], self.cur)
-            self.dataX.append(sample[0])
-            self.dataY.append(sample[1])
+            # sample = self.gen_data(As.trajectory[1], self.cur)
+            # self.dataX.append(sample[0])
+            # self.dataY.append(sample[1])
 
             index, block = self.followStep(As.trajectory)
             if index == len(As.trajectory):

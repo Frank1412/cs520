@@ -7,6 +7,7 @@ import numpy as np
 from torch.nn.functional import cross_entropy
 from sklearn import metrics
 import copy
+from transformers import AdamW
 
 if torch.cuda.is_available():
     dev = "cuda:0"
@@ -50,49 +51,71 @@ class Agent1CNN(nn.Module):
         super(Agent1CNN, self).__init__()
         self.cnn_layers = nn.Sequential(
             # Defining a 2D convolution layer
-            nn.Conv2d(5, 64, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True),
+            nn.Conv2d(4, 32, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.2),
             # Defining another 2D convolution layer
-            nn.Conv2d(64, 256, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True),
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.2),
-            # nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
-            # nn.BatchNorm2d(256),
-            # nn.ReLU(inplace=True),
-            # nn.MaxPool2d(kernel_size=2, stride=2),
-            # nn.Dropout(0.2),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout(0.2),
         )
 
         self.linear_layers = nn.Sequential(
-            nn.Linear(256 * 7 * 7, 4)
+            nn.Linear(128 * 3 * 3, 4)
         )
+        # self.fc1 = nn.Sequential(
+        #     nn.Linear(64 * 7 * 7, 128)
+        # )
+        # self.fc2 = nn.Sequential(
+        #     nn.Linear(4*30*30, 128)
+        # )
+        # self.fc3 = nn.Sequential(
+        #     nn.Linear(128, 4)
+        # )
+        # self.fc4 = nn.Linear(256, 4)
 
     def forward(self, x):
+        # print(x.shape)
+        # x2 = self.fc2(x.reshape(x.size(0), -1))
         x = self.cnn_layers(x)
-        # print(x.shape, x.size())
         x = x.view(x.size(0), -1)
         y = self.linear_layers(x)
+
+        # x1 = self.fc1(x.reshape(x.size(0), -1))
+        # xx = torch.cat([x1, x2], dim=1)
+        # y = self.fc4(xx)
         return y
 
 
-def train(data, batch_size=16, shuffle=True, learning_rate=0.001):
+def train(data, batch_size=16, shuffle=True, learning_rate=0.001, from_scratch=True):
     train_x, train_y = np.array(data[0]), np.array(data[1])
     # train_x = train_x.reshape(len(train_x), -1)
     dataLoader = DataLoader(MyDataset(train_x, train_y), batch_size=batch_size, shuffle=shuffle)
     model = Agent1CNN()
+    model.to(device)
+    if not from_scratch:
+        state_dict = torch.load("./model/agent1CNN300.pt")
+        model.load_state_dict(state_dict["model"])
+        optimizer = torch.optim.Adam(model.parameters())
+        optimizer.load_state_dict(state_dict["optimizer"])
+        model.train()
+    else:
+        optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate)
     # model = Agent1NN()
     # model = torch.load("./model/agent1CNN.pt")
     # model.eval()
-    model.to(device)
     soft_max = nn.Softmax(1)
-    optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate)
     crossEntropy = nn.CrossEntropyLoss()
-    for i in range(100):
+    for i in range(300):
         print("================{i} iteration================ ".format(i=i + 1))
         predList = []
         labelList = []
@@ -108,12 +131,12 @@ def train(data, batch_size=16, shuffle=True, learning_rate=0.001):
             labelList += list(label.cpu().numpy())
             # accurate = metrics.accuracy_score(label.cpu(), pred.cpu())
             # print(accurate)
-            if (j + 1) % 3 == 0:
+            if (j + 1) % 4 == 0:
                 print(loss.item())
         accuracy = metrics.accuracy_score(labelList, predList)
         print("accuracy: {acc}".format(acc=accuracy))
     state_dict = {"model": model.state_dict(), "optimizer": optimizer.state_dict()}
-    torch.save(state_dict, "./model/agent1CNN.pt")
+    torch.save(state_dict, "./model/agent1CNN600.pt")
 
 
 def eval(data, batch_size=16):
@@ -140,7 +163,7 @@ def inputTransform(status, cur, visit):
     place = np.expand_dims(place, 2)
     x = np.concatenate([x, place], axis=-1)
     # x = np.concatenate([x, np.expand_dims(visitCount, 2)], axis=-1)
-    x = np.concatenate([x, np.expand_dims(visit, 2)], axis=-1)
+    # x = np.concatenate([x, np.expand_dims(visit, 2)], axis=-1)
     return np.array([x])
 
 
@@ -167,7 +190,7 @@ def dfsCNN(model, gridWorld, map, cur, trajectory, soft_max, visited, visit):
     #     return False
     trajectory.append(cur)
     visit[cur[0]][cur[1]] = 1
-    print(cur)
+    # print(cur)
     # visited[cur[0]][cur[1]] = True
     updateNeighbor(gridWorld, map, cur)
     inputX = inputTransform(status=gridWorld, cur=cur, visit=visit)
@@ -176,7 +199,7 @@ def dfsCNN(model, gridWorld, map, cur, trajectory, soft_max, visited, visit):
     for j, (x, label) in enumerate(dataLoader):
         output = model(x.permute(0, 3, 1, 2))
     prob, sortedIdx = torch.sort(soft_max(output), descending=True)
-    print(sortedIdx)
+    # print(sortedIdx)
     for idx in sortedIdx[0]:
         # pred = sortedIdx[0][idx]
         # print(pred)
@@ -195,7 +218,7 @@ def repeatedCNN():
     mazes = np.load("maps/30x30dim.npy")
     print(mazes.shape)
     soft_max = nn.Softmax(1)
-    for map in mazes[:1]:
+    for map in mazes[:]:
         gridWorld = np.full(map.shape, 2)
         # gridWorld[0][0], gridWorld[0][1], gridWorld[1][0] = 0, map[0][1], map[1][0]
         visitCount = np.zeros(map.shape)
@@ -253,7 +276,7 @@ if __name__ == '__main__':
         dataY = np.concatenate([y, dataY], axis=0)
     print(dataX.shape)
     print(np.unique(dataY, return_counts=True))
-    # train((dataX, dataY), batch_size=512, shuffle=True, learning_rate=0.001)  # batch_size=256, shuffle=True, learning_rate=0.001
+    train((dataX, dataY), batch_size=512, shuffle=True, learning_rate=0.001, from_scratch=False)  # batch_size=256, shuffle=True, learning_rate=0.001
     # eval((dataX, dataY), 512)
     #
     # repeatedCNN()
