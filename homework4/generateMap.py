@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from homework3 import Astar
+# from homework3 import Astar
 from Astar import *
 import os
 import numpy as np
@@ -30,4 +30,4 @@ def genSave(total_num, m, n):
 
 
 if __name__ == '__main__':
-    genSave(50, 30, 30)
+    genSave(200, 30, 30)

@@ -94,16 +94,16 @@ class RepeatedAStar(object):
 
 
 if __name__ == '__main__':
-    total_num, p = 20, 0.3
     m, n = 30, 30
     mazes = np.load("maps/30x30dim.npy")
     dataset = []
+    print(mazes.shape)
     for i in range(len(mazes)):
         maze = mazes[i]
         alg = RepeatedAStar(maze)
         res = alg.run()
         print(res)
-        print(alg.trajectory)
+        # print(alg.trajectory)
         x = np.array(alg.dataX)
         y = np.array(alg.dataY)
         np.save("./data/map_{i}".format(i=i+1), x)
