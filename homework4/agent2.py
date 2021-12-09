@@ -11,8 +11,8 @@ from transformers import AdamW
 from util import *
 
 if torch.cuda.is_available():
-    # dev = "cuda:0"
-    dev = "cpu"
+    dev = "cuda:0"
+    # dev = "cpu"
 else:
     dev = "cpu"
 device = torch.device(dev)
@@ -37,13 +37,23 @@ class MyDataset(Dataset):
 class Agent2NN(nn.Module):
     def __init__(self):
         super(Agent2NN, self).__init__()
-        self.fc1 = nn.Linear(30 * 30 * 4, 4096)
-        self.fc2 = nn.Linear(4096, 768)
-        self.cls = nn.Linear(768, 4)
+        self.fc1 = nn.Linear(30 * 30 * 9, 1024)
+        self.fc2 = nn.Linear(1024, 2048)
+        self.fc3 = nn.Linear(2048, 2048)
+        self.fc4 = nn.Linear(2048, 1024)
+        self.activate = nn.ReLU()
+        # self.batchNorm = nn.BatchNorm1d()
+        self.cls = nn.Linear(1024, 4)
 
     def forward(self, x):
-        out = self.fc1(x)
+        out = self.fc1(x.reshape(x.size(0), -1))
+        out = self.activate(out)
         out = self.fc2(out)
+        out = self.activate(out)
+        out = self.fc3(out)
+        out = self.activate(out)
+        out = self.fc4(out)
+        out = self.activate(out)
         y = self.cls(out)
         return y
 
@@ -98,14 +108,22 @@ class Agent2CNN(nn.Module):
         return y
 
 
-def train(data, batch_size=16, shuffle=True, learning_rate=0.001, from_scratch=True, num_iteration=200):
+def train(data, batch_size=16, shuffle=True, learning_rate=0.001, from_scratch=True, num_iteration=200, modelType="CNN"):
     train_x, train_y = np.array(data[0]), np.array(data[1])
     # train_x = train_x.reshape(len(train_x), -1)
     dataLoader = DataLoader(MyDataset(train_x, train_y), batch_size=batch_size, shuffle=shuffle)
-    model = Agent2CNN()
+    model = None
+    if modelType == "CNN":
+        model = Agent2CNN()
+    elif modelType == "NN":
+        model = Agent2NN()
     model.to(device)
     if not from_scratch:
-        state_dict = torch.load("./model/proj2/agent2CNN_40.pt")
+        state_dict = None
+        if modelType == "CNN":
+            state_dict = torch.load("./model/proj2/agent2CNN_80.pt")
+        elif modelType == "NN":
+            state_dict = torch.load("./model/proj2/NN_200.pt")
         model.load_state_dict(state_dict["model"])
         optimizer = torch.optim.Adam(model.parameters())
         optimizer.load_state_dict(state_dict["optimizer"])
@@ -140,7 +158,8 @@ def train(data, batch_size=16, shuffle=True, learning_rate=0.001, from_scratch=T
         # accuracy = metrics.accuracy_score(labelList, predList)
         # print("accuracy: {acc}".format(acc=accuracy))
     state_dict = {"model": model.state_dict(), "optimizer": optimizer.state_dict()}
-    torch.save(state_dict, "./model/proj2/agent2CNN_{itr}.pt".format(itr=num_iteration+40))
+    filePath = "./model/proj2/{modelName}_{itr}.pt".format(itr=num_iteration + 200, modelName=modelType)
+    torch.save(state_dict, filePath)
 
 
 def eval(data, batch_size=16):
@@ -207,7 +226,7 @@ def dfsCNN(model, gridWorld, map, cur, trajectory, soft_max, visited, N, C, B, E
     if len(trajectory) > 3000:
         return False
     m, n = map.shape
-    if cur == (m-1, n-1):
+    if cur == (m - 1, n - 1):
         return True
     updateUnknown(map, gridWorld, cur, N, C, B, E, H)
     if gridWorld[cur[0]][cur[1]] == 1:
@@ -246,8 +265,8 @@ def dfsCNN(model, gridWorld, map, cur, trajectory, soft_max, visited, N, C, B, E
     return False
 
 
-def repeatedCNN():
-    mazes = np.load("maps/30x30dim.npy")
+def repeatedCNN(modelType="CNN"):
+    mazes = np.load("maps/test_30x30dim.npy")
     print(mazes.shape)
     soft_max = nn.Softmax(1)
     for idx, map in enumerate(mazes[0:]):
@@ -256,8 +275,12 @@ def repeatedCNN():
         gridWorld, N, C, B, E, H = initialize(map)
         visit = np.zeros(map.shape)
         cur = (0, 0)
-        state_dict = torch.load("./model/proj2/agent2CNN_80.pt")
-        model = Agent2CNN()
+        if modelType == "CNN":
+            state_dict = torch.load("./model/proj2/agent2CNN_80.pt")
+            model = Agent2CNN()
+        else:
+            state_dict = torch.load("./model/proj2/NN_300.pt")
+            model = Agent2NN()
         model.load_state_dict(state_dict["model"])
         model.to(device)
         model.eval()
@@ -328,7 +351,10 @@ if __name__ == '__main__':
     #     dataY = np.concatenate([y, dataY], axis=0)
     # print(dataX.shape)
     # print(np.unique(dataY, return_counts=True))
-    # train((dataX, dataY), batch_size=256, shuffle=True, learning_rate=0.001, from_scratch=False, num_iteration=40)  # batch_size=256, shuffle=True, learning_rate=0.001
+    # # train((dataX, dataY), batch_size=256, shuffle=True, learning_rate=0.001, from_scratch=True, num_iteration=40, modelType="CNN")
+    # # batch_size=256, shuffle=True, learning_rate=0.001
+    # train((dataX, dataY), batch_size=1024, shuffle=True, learning_rate=0.0001, from_scratch=False, num_iteration=100, modelType="NN")
     # eval((dataX, dataY), 512)
     #
-    repeatedCNN()
+    # repeatedCNN("CNN")
+    repeatedCNN("NN")

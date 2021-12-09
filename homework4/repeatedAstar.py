@@ -49,10 +49,10 @@ class RepeatedAStar(object):
                 self.trajectory.append((i, j))
                 # print(i - self.cur[0], j - self.cur[1])
                 # if idx < 4:
-                sample = self.gen_data((i, j), self.cur)
-                self.dataX.append(sample[0])
-                self.dataY.append(sample[1])
-                # self.visitCount[i][j] += 1
+                if self.map[i][j] != 1:
+                    sample = self.gen_data((i, j), self.cur)
+                    self.dataX.append(sample[0])
+                    self.dataY.append(sample[1])
             if self.map[i][j] == 1:
                 block = (i, j)
                 index = idx - 1
@@ -106,8 +106,8 @@ if __name__ == '__main__':
         # print(alg.trajectory)
         x = np.array(alg.dataX)
         y = np.array(alg.dataY)
-        np.save("./data/map_{i}".format(i=i+1), x)
-        np.save("./data/label_{i}".format(i=i+1), y)
+        np.save("./data/proj1/map_{i}".format(i=i+1), x)
+        np.save("./data/proj1/label_{i}".format(i=i+1), y)
 
     # data = np.load("./data/map1.npy")
     # x, y = data[:, 0], data[:, 1]

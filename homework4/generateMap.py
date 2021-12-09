@@ -24,8 +24,8 @@ def genSave(total_num, m, n):
                 alg.goal = (m - 1, n - 1)
             maps.append(maze)
     maps = np.array(maps)
-    np.save(os.path.join(path, "30x30dim"), maps)
-    loadmaps = np.load(os.path.join(path, "30x30dim.npy"))
+    np.save(os.path.join(path, "test_30x30dim"), maps)
+    loadmaps = np.load(os.path.join(path, "test_30x30dim.npy"))
     print(loadmaps.shape)
 
 
