@@ -9,6 +9,7 @@ from sklearn import metrics
 import copy
 from transformers import AdamW
 from util import *
+from torchsummary import summary
 
 if torch.cuda.is_available():
     dev = "cuda:0"
@@ -37,13 +38,13 @@ class MyDataset(Dataset):
 class Agent2NN(nn.Module):
     def __init__(self):
         super(Agent2NN, self).__init__()
-        self.fc1 = nn.Linear(30 * 30 * 9, 1024)
-        self.fc2 = nn.Linear(1024, 2048)
+        self.fc1 = nn.Linear(30 * 30 * 9, 2048)
+        self.fc2 = nn.Linear(2048, 2048)
         self.fc3 = nn.Linear(2048, 2048)
-        self.fc4 = nn.Linear(2048, 1024)
+        self.fc4 = nn.Linear(2048, 512)
         self.activate = nn.ReLU()
         # self.batchNorm = nn.BatchNorm1d()
-        self.cls = nn.Linear(1024, 4)
+        self.cls = nn.Linear(512, 4)
 
     def forward(self, x):
         out = self.fc1(x.reshape(x.size(0), -1))
@@ -121,9 +122,9 @@ def train(data, batch_size=16, shuffle=True, learning_rate=0.001, from_scratch=T
     if not from_scratch:
         state_dict = None
         if modelType == "CNN":
-            state_dict = torch.load("./model/proj2/agent2CNN_80.pt")
+            state_dict = torch.load("./model/proj2/CNN_160.pt")
         elif modelType == "NN":
-            state_dict = torch.load("./model/proj2/NN_200.pt")
+            state_dict = torch.load("./model/proj2/NN_500.pt")
         model.load_state_dict(state_dict["model"])
         optimizer = torch.optim.Adam(model.parameters())
         optimizer.load_state_dict(state_dict["optimizer"])
@@ -152,13 +153,12 @@ def train(data, batch_size=16, shuffle=True, learning_rate=0.001, from_scratch=T
             # accurate = metrics.accuracy_score(label.cpu(), pred.cpu())
             # print(accurate)
             if (j + 1) % 20 == 0:
-                print(loss.item())
                 accuracy = metrics.accuracy_score(label.cpu(), pred.cpu())
-                print("accuracy: {acc}".format(acc=accuracy))
+                print("loss: {loss},  accuracy: {acc}".format(acc=accuracy, loss=loss.item()))
         # accuracy = metrics.accuracy_score(labelList, predList)
         # print("accuracy: {acc}".format(acc=accuracy))
     state_dict = {"model": model.state_dict(), "optimizer": optimizer.state_dict()}
-    filePath = "./model/proj2/{modelName}_{itr}.pt".format(itr=num_iteration + 200, modelName=modelType)
+    filePath = "./model/proj2/{modelName}_{itr}.pt".format(itr=num_iteration + 160, modelName=modelType)
     torch.save(state_dict, filePath)
 
 
@@ -223,7 +223,7 @@ def getAllNeighbors(x, m, n):
 
 def dfsCNN(model, gridWorld, map, cur, trajectory, soft_max, visited, N, C, B, E, H):
     trajectory.append(cur)
-    if len(trajectory) > 3000:
+    if len(trajectory) > 1500:
         return False
     m, n = map.shape
     if cur == (m - 1, n - 1):
@@ -276,10 +276,10 @@ def repeatedCNN(modelType="CNN"):
         visit = np.zeros(map.shape)
         cur = (0, 0)
         if modelType == "CNN":
-            state_dict = torch.load("./model/proj2/agent2CNN_80.pt")
+            state_dict = torch.load("./model/proj2/CNN_200.pt")
             model = Agent2CNN()
         else:
-            state_dict = torch.load("./model/proj2/NN_300.pt")
+            state_dict = torch.load("./model/proj2/NN_700.pt")
             model = Agent2NN()
         model.load_state_dict(state_dict["model"])
         model.to(device)
@@ -345,16 +345,16 @@ def repeatedCNN(modelType="CNN"):
 if __name__ == '__main__':
     # dataX, dataY = np.load("./data/proj2/map_1.npy"), np.load("./data/proj2/label_1.npy")
     # print(dataX.shape)
-    # for i in range(1, 20):
+    # for i in range(1, 200):
     #     x, y = np.load("./data/proj2/map_{t}.npy".format(t=i + 1)), np.load("./data/proj2/label_{t}.npy".format(t=i + 1))
     #     dataX = np.concatenate([x, dataX], axis=0)
     #     dataY = np.concatenate([y, dataY], axis=0)
     # print(dataX.shape)
     # print(np.unique(dataY, return_counts=True))
-    # # train((dataX, dataY), batch_size=256, shuffle=True, learning_rate=0.001, from_scratch=True, num_iteration=40, modelType="CNN")
-    # # batch_size=256, shuffle=True, learning_rate=0.001
-    # train((dataX, dataY), batch_size=1024, shuffle=True, learning_rate=0.0001, from_scratch=False, num_iteration=100, modelType="NN")
+    # train((dataX, dataY), batch_size=256, shuffle=True, learning_rate=0.001, from_scratch=False, num_iteration=40, modelType="CNN")
+    # batch_size=256, shuffle=True, learning_rate=0.001
+    # train((dataX, dataY), batch_size=1024, shuffle=True, learning_rate=0.0001, from_scratch=False, num_iteration=200, modelType="NN")
     # eval((dataX, dataY), 512)
     #
-    # repeatedCNN("CNN")
-    repeatedCNN("NN")
+    repeatedCNN("CNN")
+    # repeatedCNN("NN")

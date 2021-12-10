@@ -46,10 +46,10 @@ class RepeatedAStar(object):
         for idx, (i, j) in enumerate(trajectory):
             # self.visit[i][j] = 1
             if idx != 0:
-                self.trajectory.append((i, j))
                 # print(i - self.cur[0], j - self.cur[1])
                 # if idx < 4:
                 if self.map[i][j] != 1:
+                    self.trajectory.append((i, j))
                     sample = self.gen_data((i, j), self.cur)
                     self.dataX.append(sample[0])
                     self.dataY.append(sample[1])
@@ -95,19 +95,20 @@ class RepeatedAStar(object):
 
 if __name__ == '__main__':
     m, n = 30, 30
-    mazes = np.load("maps/30x30dim.npy")
+    mazes = np.load("maps/test_30x30dim.npy")
     dataset = []
     print(mazes.shape)
     for i in range(len(mazes)):
         maze = mazes[i]
         alg = RepeatedAStar(maze)
         res = alg.run()
-        print(res)
+        # print(res)
+        print("{i}th len=".format(i=i + 1), len(alg.trajectory))
         # print(alg.trajectory)
         x = np.array(alg.dataX)
         y = np.array(alg.dataY)
-        np.save("./data/proj1/map_{i}".format(i=i+1), x)
-        np.save("./data/proj1/label_{i}".format(i=i+1), y)
+        # np.save("./data/proj1/map_{i}".format(i=i+1), x)
+        # np.save("./data/proj1/label_{i}".format(i=i+1), y)
 
     # data = np.load("./data/map1.npy")
     # x, y = data[:, 0], data[:, 1]

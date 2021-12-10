@@ -13,6 +13,7 @@ if torch.cuda.is_available():
     dev = "cuda:0"
 else:
     dev = "cpu"
+
 device = torch.device(dev)
 cls = {(1, 0): 0, (0, 1): 1, (-1, 0): 2, (0, -1): 3}
 idx_gird = {0: (1, 0), 1: (0, 1), 2: (-1, 0), 3: (0, -1)}
@@ -223,12 +224,13 @@ def dfsCNN(model, gridWorld, map, cur, trajectory, soft_max, visited, visit):
             if dfsCNN(model, gridWorld, map, (x1, y1), trajectory, soft_max, visited, visit):
                 return True
             visited[x1][y1] = False
+            trajectory.append(cur)
     # visited[cur[0]][cur[1]] = False
     return False
 
 
 def repeatedCNN(modelType="CNN"):
-    mazes = np.load("maps/30x30dim.npy")
+    mazes = np.load("maps/test_30x30dim.npy")
     print(mazes.shape)
     soft_max = nn.Softmax(1)
     for idx, map in enumerate(mazes[:]):
@@ -239,7 +241,7 @@ def repeatedCNN(modelType="CNN"):
         visit = np.zeros(map.shape)
         cur = (0, 0)
         inputX = inputTransform(status=gridWorld, cur=(0, 0), visit=visit)
-        if modelType=="CNN":
+        if modelType == "CNN":
             state_dict = torch.load("./model/proj1/CNN_50.pt")
             model = Agent1CNN()
         else:
@@ -300,5 +302,5 @@ if __name__ == '__main__':
     # train((dataX, dataY), batch_size=512, shuffle=True, learning_rate=0.001, from_scratch=False, num_iteration=100, modelType="NN")  #
     # eval((dataX, dataY), 512)
     #
-    # repeatedCNN("CNN")
-    repeatedCNN("NN")
+    repeatedCNN("CNN")
+    # repeatedCNN("NN")

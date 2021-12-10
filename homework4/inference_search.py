@@ -187,6 +187,7 @@ class InferenceSearch(object):
                 print(As.trajectory)
                 return False
             block, index = self.inference(As)
+            # print(block, index, len(As.trajectory))
             # print(block)
             if index == len(As.trajectory):
                 # print(self.map.map)
@@ -194,20 +195,20 @@ class InferenceSearch(object):
                 return True
             start = As.trajectory[index]
             As = AStar(self.Maze, 1)
-            As.start = self.start
+            As.start = start
             As.goal = self.goal
 
 
 if __name__ == '__main__':
-    mazes = np.load("maps/30x30dim.npy")
+    mazes = np.load("maps/test_30x30dim.npy")
     print(mazes.shape)
-    for i in range(len(mazes[:20])):
+    for i in range(len(mazes[:])):
         map = mazes[i]
         algo = InferenceSearch(map)
         res = algo.run()
-        print(res, len(algo.trajectory))
+        print("{i}th len=".format(i=i+1), len(algo.trajectory))
         x = np.array(algo.dataX)
         y = np.array(algo.dataY)
-        print(x.shape, y.shape)
-        np.save("./data/proj2/map_{i}".format(i=i + 1), x)
-        np.save("./data/proj2/label_{i}".format(i=i + 1), y)
+        # print(x.shape, y.shape)
+        # np.save("./data/proj2/map_{i}".format(i=i + 1), x)
+        # np.save("./data/proj2/label_{i}".format(i=i + 1), y)
