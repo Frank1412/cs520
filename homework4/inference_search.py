@@ -131,12 +131,13 @@ class InferenceSearch(object):
         # print(prev)
         place[self.prev[0]][self.prev[1]] = 1
         place = np.expand_dims(place, 2)
-        N = np.expand_dims(self.subN, 2)
+        # N = np.expand_dims(self.subN, 2)
         C = np.expand_dims(self.subC, 2)
         B = np.expand_dims(self.subB, 2)
         E = np.expand_dims(self.subE, 2)
         H = np.expand_dims(self.subH, 2)
-        x = np.concatenate([x, place, N, C, B, E, H], axis=-1)
+        # x = np.concatenate([x, place, N, C, B, E, H], axis=-1)
+        x = np.concatenate([x, place, C, B, E, H], axis=-1)
         label = cls.get((next[0] - self.prev[0], next[1] - self.prev[1]))
         return np.array(x), label
 
@@ -201,14 +202,20 @@ class InferenceSearch(object):
 
 if __name__ == '__main__':
     mazes = np.load("maps/test_30x30dim.npy")
+    dataX, dataY = np.zeros([1, 30, 30, 8]), np.array([10])
+    lenList = []
     print(mazes.shape)
     for i in range(len(mazes[:])):
         map = mazes[i]
         algo = InferenceSearch(map)
         res = algo.run()
         print("{i}th len=".format(i=i+1), len(algo.trajectory))
+        lenList.append(len(algo.trajectory))
         x = np.array(algo.dataX)
         y = np.array(algo.dataY)
-        # print(x.shape, y.shape)
-        # np.save("./data/proj2/map_{i}".format(i=i + 1), x)
-        # np.save("./data/proj2/label_{i}".format(i=i + 1), y)
+        dataX = np.concatenate([dataX, x], axis=0)
+        dataY = np.concatenate([dataY, y], axis=0)
+
+    # np.save("./data/proj2/test_dataX", dataX[1:])
+    # np.save("./data/proj2/test_dataY", dataY[1:])
+    # np.save("./pics/proj2/agentLen", np.array(lenList))

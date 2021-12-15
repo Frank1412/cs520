@@ -38,13 +38,12 @@ class MyDataset(Dataset):
 class Agent2NN(nn.Module):
     def __init__(self):
         super(Agent2NN, self).__init__()
-        self.fc1 = nn.Linear(30 * 30 * 9, 2048)
-        self.fc2 = nn.Linear(2048, 2048)
-        self.fc3 = nn.Linear(2048, 2048)
-        self.fc4 = nn.Linear(2048, 512)
+        self.fc1 = nn.Linear(30 * 30 * 8, 1024)
+        self.fc2 = nn.Linear(1024, 1024)
+        self.fc3 = nn.Linear(1024, 1024)
         self.activate = nn.ReLU()
         # self.batchNorm = nn.BatchNorm1d()
-        self.cls = nn.Linear(512, 4)
+        self.cls = nn.Linear(1024, 4)
 
     def forward(self, x):
         out = self.fc1(x.reshape(x.size(0), -1))
@@ -52,8 +51,6 @@ class Agent2NN(nn.Module):
         out = self.fc2(out)
         out = self.activate(out)
         out = self.fc3(out)
-        out = self.activate(out)
-        out = self.fc4(out)
         out = self.activate(out)
         y = self.cls(out)
         return y
@@ -64,19 +61,19 @@ class Agent2CNN(nn.Module):
         super(Agent2CNN, self).__init__()
         self.cnn_layers = nn.Sequential(
             # Defining a 2D convolution layer
-            nn.Conv2d(9, 64, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(8, 128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.2),
             # Defining another 2D convolution layer
-            nn.Conv2d(64, 256, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(256),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Dropout(0.2),
-            # nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
-            # nn.BatchNorm2d(128),
+            # nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1),
+            # nn.BatchNorm2d(512),
             # nn.ReLU(),
             # nn.MaxPool2d(kernel_size=2, stride=2),
             # nn.Dropout(0.2),
@@ -122,9 +119,9 @@ def train(data, batch_size=16, shuffle=True, learning_rate=0.001, from_scratch=T
     if not from_scratch:
         state_dict = None
         if modelType == "CNN":
-            state_dict = torch.load("./model/proj2/CNN_160.pt")
+            state_dict = torch.load("./model/proj2/3layerCNN_10.pt")
         elif modelType == "NN":
-            state_dict = torch.load("./model/proj2/NN_500.pt")
+            state_dict = torch.load("./model/proj2/2layerNN_800.pt")
         model.load_state_dict(state_dict["model"])
         optimizer = torch.optim.Adam(model.parameters())
         optimizer.load_state_dict(state_dict["optimizer"])
@@ -140,25 +137,28 @@ def train(data, batch_size=16, shuffle=True, learning_rate=0.001, from_scratch=T
         print("================{i} iteration================ ".format(i=i + 1))
         predList = []
         labelList = []
+        avgLoss, num = 0.0, 0
         for j, (x, label) in enumerate(dataLoader):
             optimizer.zero_grad()
             output = model(x.permute(0, 3, 1, 2))
             loss = crossEntropy(output, label)
             loss.backward()
             optimizer.step()
-
+            avgLoss += loss.item()
+            num += 1
             pred = torch.argmax(soft_max(output), dim=1)
             # predList += list(pred.cpu().numpy())
             # labelList += list(label.cpu().numpy())
             # accurate = metrics.accuracy_score(label.cpu(), pred.cpu())
             # print(accurate)
-            if (j + 1) % 20 == 0:
+            if (j + 1) % 10 == 0:
                 accuracy = metrics.accuracy_score(label.cpu(), pred.cpu())
                 print("loss: {loss},  accuracy: {acc}".format(acc=accuracy, loss=loss.item()))
+        print("############## average loss={loss}".format(loss=avgLoss / num))
         # accuracy = metrics.accuracy_score(labelList, predList)
         # print("accuracy: {acc}".format(acc=accuracy))
     state_dict = {"model": model.state_dict(), "optimizer": optimizer.state_dict()}
-    filePath = "./model/proj2/{modelName}_{itr}.pt".format(itr=num_iteration + 160, modelName=modelType)
+    filePath = "./model/proj2/3layer{modelName}_{itr}.pt".format(itr=num_iteration + 10, modelName=modelType)
     torch.save(state_dict, filePath)
 
 
@@ -184,12 +184,13 @@ def inputTransform(status, cur, N, C, B, E, H):
     # print(prev)
     place[cur[0]][cur[1]] = 1
     place = np.expand_dims(place, 2)
-    tmpN = np.expand_dims(N, 2)
+    # tmpN = np.expand_dims(N, 2)
     tmpC = np.expand_dims(C, 2)
     tmpB = np.expand_dims(B, 2)
     tmpE = np.expand_dims(E, 2)
     tmpH = np.expand_dims(H, 2)
-    x = np.concatenate([x, place, tmpN, tmpC, tmpB, tmpE, tmpH], axis=-1)
+    # x = np.concatenate([x, place, tmpN, tmpC, tmpB, tmpE, tmpH], axis=-1)
+    x = np.concatenate([x, place, tmpC, tmpB, tmpE, tmpH], axis=-1)
     # x = np.concatenate([x, np.expand_dims(visitCount, 2)], axis=-1)
     # x = np.concatenate([x, np.expand_dims(visit, 2)], axis=-1)
     return np.array([x])
@@ -276,10 +277,10 @@ def repeatedCNN(modelType="CNN"):
         visit = np.zeros(map.shape)
         cur = (0, 0)
         if modelType == "CNN":
-            state_dict = torch.load("./model/proj2/CNN_200.pt")
+            state_dict = torch.load("./model/proj2/3layerCNN_15.pt")
             model = Agent2CNN()
         else:
-            state_dict = torch.load("./model/proj2/NN_700.pt")
+            state_dict = torch.load("./model/proj2/2layerNN_800.pt")
             model = Agent2NN()
         model.load_state_dict(state_dict["model"])
         model.to(device)
@@ -343,17 +344,13 @@ def repeatedCNN(modelType="CNN"):
 
 
 if __name__ == '__main__':
-    # dataX, dataY = np.load("./data/proj2/map_1.npy"), np.load("./data/proj2/label_1.npy")
-    # print(dataX.shape)
-    # for i in range(1, 200):
-    #     x, y = np.load("./data/proj2/map_{t}.npy".format(t=i + 1)), np.load("./data/proj2/label_{t}.npy".format(t=i + 1))
-    #     dataX = np.concatenate([x, dataX], axis=0)
-    #     dataY = np.concatenate([y, dataY], axis=0)
+
+    # dataX, dataY = np.load("./data/proj2/dataX.npy"), np.load("./data/proj2/dataY.npy")
     # print(dataX.shape)
     # print(np.unique(dataY, return_counts=True))
-    # train((dataX, dataY), batch_size=256, shuffle=True, learning_rate=0.001, from_scratch=False, num_iteration=40, modelType="CNN")
+    # train((dataX, dataY), batch_size=512, shuffle=True, learning_rate=0.001, from_scratch=False, num_iteration=5, modelType="CNN")
     # batch_size=256, shuffle=True, learning_rate=0.001
-    # train((dataX, dataY), batch_size=1024, shuffle=True, learning_rate=0.0001, from_scratch=False, num_iteration=200, modelType="NN")
+    # train((dataX, dataY), batch_size=512, shuffle=True, learning_rate=0.0001, from_scratch=False, num_iteration=200, modelType="NN")
     # eval((dataX, dataY), 512)
     #
     repeatedCNN("CNN")

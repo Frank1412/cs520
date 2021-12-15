@@ -146,7 +146,7 @@ def train(data, batch_size=16, shuffle=True, learning_rate=0.001, from_scratch=T
         # accuracy = metrics.accuracy_score(labelList, predList)
         # print("accuracy: {acc}".format(acc=accuracy))
     state_dict = {"model": model.state_dict(), "optimizer": optimizer.state_dict()}
-    filePath = "./model/proj1/{modelName}_{itr}.pt".format(itr=num_iteration + 200, modelName=modelType)
+    filePath = "./model/proj1/{modelName}_{itr}.pt".format(itr=num_iteration + 0, modelName=modelType)
     torch.save(state_dict, filePath)
     # torch.save(state_dict, "./model/agent1CNN_{itr}.pt".format(itr=num_iteration))
 
@@ -296,11 +296,14 @@ if __name__ == '__main__':
     #     x, y = np.load("./data/proj1/map_{t}.npy".format(t=i + 1)), np.load("./data/proj1/label_{t}.npy".format(t=i + 1))
     #     dataX = np.concatenate([x, dataX], axis=0)
     #     dataY = np.concatenate([y, dataY], axis=0)
+
+    # dataX, dataY = np.load("./data/proj1/dataX.npy"), np.load("./data/proj1/dataY.npy")
     # print(dataX.shape)
     # print(np.unique(dataY, return_counts=True))
     # train((dataX, dataY), batch_size=256, shuffle=True, learning_rate=0.001, from_scratch=True, num_iteration=50, modelType="CNN")   # batch_size=256, shuffle=True, learning_rate=0.001
-    # train((dataX, dataY), batch_size=512, shuffle=True, learning_rate=0.001, from_scratch=False, num_iteration=100, modelType="NN")  #
+    # train((dataX, dataY), batch_size=512, shuffle=True, learning_rate=0.0001, from_scratch=True, num_iteration=200, modelType="NN")  #
     # eval((dataX, dataY), 512)
     #
-    repeatedCNN("CNN")
-    # repeatedCNN("NN")
+    # repeatedCNN("CNN")
+    repeatedCNN("NN")
+

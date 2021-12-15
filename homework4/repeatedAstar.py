@@ -3,6 +3,7 @@
 import numpy as np
 from Astar import *
 import pandas as pd
+
 # from keras.utils.np_utils import to_categorical
 
 directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
@@ -96,22 +97,22 @@ class RepeatedAStar(object):
 if __name__ == '__main__':
     m, n = 30, 30
     mazes = np.load("maps/test_30x30dim.npy")
-    dataset = []
     print(mazes.shape)
-    for i in range(len(mazes)):
+    dataX, dataY = np.zeros([1, 30, 30, 4]), np.array([10])
+    lenList = []
+    for i in range(len(mazes[:])):
         maze = mazes[i]
         alg = RepeatedAStar(maze)
         res = alg.run()
         # print(res)
         print("{i}th len=".format(i=i + 1), len(alg.trajectory))
+        lenList.append(len(alg.trajectory))
         # print(alg.trajectory)
         x = np.array(alg.dataX)
         y = np.array(alg.dataY)
-        # np.save("./data/proj1/map_{i}".format(i=i+1), x)
-        # np.save("./data/proj1/label_{i}".format(i=i+1), y)
-
-    # data = np.load("./data/map1.npy")
-    # x, y = data[:, 0], data[:, 1]
-    # print(x[0].shape)
-
+        dataX = np.concatenate([dataX, x], axis=0)
+        dataY = np.concatenate([dataY, y], axis=0)
+    # np.save("./data/proj1/test_dataX", dataX[1:])
+    # np.save("./data/proj1/test_dataY", dataY[1:])
+    # np.save("./pics/proj1/agentLen", np.array(lenList))
 
